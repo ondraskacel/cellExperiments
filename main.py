@@ -1,7 +1,5 @@
 from typing import Union
 
-from scipy.optimize import minimize
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -54,10 +52,11 @@ def output_intensity(
 def get_density(beta: np.ndarray):
 
     x_grid = np.linspace(0.0, 1.0, 51)
-    # return beta[0] * np.exp(-np.square(beta[1] - x_grid) / np.square(beta[2]))  # Gaussian parametrization
+
     log_density = beta[0]
     log_density += beta[1] * (2 * x_grid - 1)
     log_density += beta[2] * (6 * np.square(x_grid) - 6 * x_grid + 1)
+
     return np.exp(log_density)
 
 
@@ -89,43 +88,3 @@ if __name__ == '__main__':
 
     plt.legend()
     plt.show()
-
-    # depth = 10.0
-    # absorption_coef = 0.1
-    #
-    # actual_intensity = output_intensity(1.0, theta_in, theta_out, absorption_coef, density_0, depth)
-    # sigma = np.min(actual_intensity) * 0.1
-    #
-    # def estimated_output(beta):
-    #
-    #     density = get_density(beta)
-    #     return output_intensity(1.0, theta_in, theta_out, absorption_coef, density, depth)
-    #
-    #
-    # def loss(beta, actual):
-    #
-    #     est = estimated_output(beta)
-    #     return np.sum(np.square(actual - est))
-    #
-    # fig, ax = plt.subplots()
-    # for i in range(10):
-    #
-    #     measured_intensity = actual_intensity + sigma * np.random.normal(size=len(actual_intensity))
-    #
-    #     best_loss = np.inf
-    #     best_params = None
-    #
-    #     for j in range(10):
-    #         res = minimize(lambda x: loss(x, measured_intensity),
-    #                        x0=np.random.normal(size=3),
-    #                        bounds=[[None, None], [None, None], [None, 0.0]],
-    #                        method='L-BFGS-B', jac='2-point')
-    #
-    #         if res['fun'] < best_loss:
-    #             best_loss = res['fun']
-    #             best_params = res['x']
-    #
-    #     ax.plot(get_density(best_params), label=str(i))
-    #
-    # plt.legend()
-    # plt.show()
