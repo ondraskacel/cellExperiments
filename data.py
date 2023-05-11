@@ -14,7 +14,7 @@ def load_default_setup() -> Dict[str, interp1d]:
     data = {}
     for suffixes, elements in DEFAULT_SETUP.items():
         for element in elements:
-            data[element] = load_multiple_files(f'data/{element}', suffixes)
+            data[element] = load_multiple_files(f'data/reference_spectra/{element}', suffixes)
 
     return data
 
