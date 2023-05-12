@@ -54,14 +54,12 @@ def load_single_file(path: str) -> pd.DataFrame:
     return data
 
 
-def load_pellet_data(pellet):
+def load_experiment_data(experiment):
 
-    return pd.read_pickle(f'data/experiment_data/{pellet}.pickle')
+    if len(experiment.detectors) == 1:
+        return pd.read_pickle(f'data/{experiment.output_path(None)}')
 
-
-def load_experiment_data(experiment, suffix):
-
-    data = {detector: pd.read_pickle(f'data/experiment_data/{experiment}_{detector}{suffix}.pickle') for detector in range(1, 6)}
+    data = {detector: pd.read_pickle(f'data/{experiment.output_path(detector)}') for detector in experiment.detectors}
 
     df = pd.DataFrame({f'intensity_{detector}': df['intensity'] for detector, df in data.items()})
     df['energy'] = data[1]['energy']  # Assumes all x-axes are the same
@@ -71,50 +69,19 @@ def load_experiment_data(experiment, suffix):
 
 if __name__ == '__main__':
 
-    names = 'FGHIIII'
-    experiments = [f'Ref-CCM-Naf212-Ni-Au-{c}_a' for c in names]
-    suffixes = ['', '', '', '_hs', '_no_hs', '_new_y_1', '_new_y_2']
+    from experiment_setup import CELLS_FIRST_BATCH, PELLETS_FIRST_BATCH, PELLETS_SECOND_BATCH
 
-    data = {f'{c}{suffix}': load_experiment_data(experiment, suffix) for c, experiment, suffix in zip(names, experiments, suffixes)}
+    data = {}
+    for cell in CELLS_FIRST_BATCH:
+        data[(cell.name, cell.output_suffix)] = load_experiment_data(cell)
+
+    for pellet in PELLETS_FIRST_BATCH + PELLETS_SECOND_BATCH:
+        data[(pellet.name, pellet.output_suffix)] = load_experiment_data(pellet)
 
     import matplotlib.pyplot as plt
 
-    # fig, ax = plt.subplots(7)
-    # for i, k in enumerate(data.keys()):
-    #     data[k].filter(regex='intensity').plot(ax=ax[i])
-    #
-    # plt.show()
+    for name, df in data.items():
+        plt.plot(df.filter(regex='intensity'), label=f'{name[0]}{name[1]}')
 
-    # areas = {k: df.filter(regex='intensity').sum(axis=0) for k, df in data.items()}
-    #
-    # fig, ax = plt.subplots()
-    # for c, area in areas.items():
-    #     ax.plot(area, label=c)
-    #
-    # ax.legend()
-    # plt.show()
-
-    # fig, ax = plt.subplots()
-    # for detector in range(1, 6):
-    #     plt.plot(data['I_new_y_1']['energy'], data['I_new_y_1'][f'intensity_{detector}'], label=f'new_y_1_{detector}')
-    #     plt.plot(data['I_new_y_2']['energy'], data['I_new_y_2'][f'intensity_{detector}'], label=f'new_y_2_{detector}')
-    #
-    # plt.legend()
-    # plt.show()
-
-    experiment = 'F'
-
-    fig, ax = plt.subplots(2)
-    for detector in range(1, 6):
-
-        df = data[experiment]
-        ax[0].plot(df['energy'], df[f'intensity_{detector}'], label=f'{experiment}_{detector}')
-
-        if detector < 5:
-            ax[1].plot(df['energy'],
-                       df[f'intensity_{detector}'] / df[f'intensity_{detector + 1}'],
-                       label=f'{experiment}_ratio_{detector}/{detector + 1}')
-
-    ax[0].legend()
-    ax[1].legend()
+    plt.legend()
     plt.show()
