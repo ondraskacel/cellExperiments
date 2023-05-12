@@ -56,7 +56,7 @@ def load_single_file(path: str) -> pd.DataFrame:
 
 def load_pellet_data(pellet):
 
-    return pd.read_pickle(f'data/pellet_data/{pellet}.pickle')
+    return pd.read_pickle(f'data/experiment_data/{pellet}.pickle')
 
 
 def load_experiment_data(experiment, suffix):
