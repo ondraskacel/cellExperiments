@@ -5,7 +5,7 @@ import pandas as pd
 import os
 
 
-_ENDPOINTS = 1
+_POINT_RANGE = slice(1, -1)
 
 
 def analyze_experiment(experiment, normalize=False):
@@ -37,8 +37,8 @@ def analyze_source(source, output_path, plot_title, normalize):
         measurement.normalize()
     
     # Save the data
-    df = pd.DataFrame({'energy': measurement.x[:-_ENDPOINTS],
-                       'intensity': measurement.signal[:-_ENDPOINTS]})
+    df = pd.DataFrame({'energy': measurement.x[_POINT_RANGE],
+                       'intensity': measurement.signal[_POINT_RANGE]})
     
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_pickle(output_path)
@@ -50,12 +50,12 @@ def plot_measurement(measurement, title):
 
     for scan in measurement.scans:
         
-        x = scan._x[:-_ENDPOINTS]
-        signal = scan._signal[0, :-_ENDPOINTS]
-        monitor = scan._monitor[:-_ENDPOINTS]
+        x = scan._x[_POINT_RANGE]
+        signal = scan._signal[0, _POINT_RANGE]
+        monitor = scan._monitor[_POINT_RANGE]
         ax.plot(x, signal / monitor)
 
-    ax.plot(measurement.x[:-_ENDPOINTS], measurement.signal[:-_ENDPOINTS], color='orange')
+    ax.plot(measurement.x[_POINT_RANGE], measurement.signal[_POINT_RANGE], color='orange')
     
     plt.xlabel('Energy (keV)')
     plt.ylabel('Intensity (arb. units)')
@@ -63,14 +63,15 @@ def plot_measurement(measurement, title):
     plt.show()
                         
 
-
 if __name__ == '__main__':
     
-    from experiment_setup import CELLS_FIRST_BATCH, PELLETS_FIRST_BATCH
+    from experiment_setup import CELLS_FIRST_BATCH, PELLETS_FIRST_BATCH, PELLETS_SECOND_BATCH
     
     for cell in CELLS_FIRST_BATCH:
         analyze_experiment(cell)
         
     for pellet in PELLETS_FIRST_BATCH:
         analyze_experiment(pellet)
-
+        
+    for pellet in PELLETS_SECOND_BATCH:
+        analyze_experiment(pellet)
