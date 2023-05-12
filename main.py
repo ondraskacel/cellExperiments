@@ -20,7 +20,7 @@ def get_density(beta: np.ndarray):
 if __name__ == '__main__':
 
     theta_in = np.pi / 6
-    theta_out = np.pi / 180 * np.array([15, 25, 35, 45, 55])
+    theta_out = np.pi / 180 * np.array([41, 34, 27, 20, 13])  # Detectors C1-5
 
     attn_data = load_default_setup()
 
