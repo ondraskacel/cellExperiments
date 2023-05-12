@@ -1,18 +1,15 @@
 from dataclasses import dataclass, field, InitVar
 from typing import Dict, List
 
-from scipy.interpolate import interp1d
-
 import numpy as np
 
-from data import ATOMIC_WEIGHTS
+from data import ATOMIC_WEIGHTS, REFERENCE_SPECTRA
 
 
 @dataclass
 class Layer:
 
     depth: float  # in microns
-    attn_data: Dict[str, interp1d]
 
     _densities: Dict[str, float] = field(init=False)
 
@@ -39,10 +36,13 @@ class Layer:
     def attn_coef(self, energies: np.ndarray) -> np.ndarray:
 
         total_attn = np.zeros_like(energies, dtype=float)
-        for element, attn in self.attn_data.items():
 
-            if element in self._densities:
-                total_attn += self._densities[element] * attn(energies)
+        for element, density in self._densities.items():
+
+            if element not in REFERENCE_SPECTRA:
+                print(f'Warning: {element} not in reference spectra')
+            else:
+                total_attn += self._densities[element] * REFERENCE_SPECTRA[element](energies)
 
         return total_attn
 

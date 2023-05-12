@@ -13,23 +13,23 @@ ATOMIC_WEIGHTS = {
     'S': 32.06,
 }
 
-DEFAULT_SETUP = {('wide', 'narrow'): ['Au', 'Co', 'Ni', 'Pt'],
-                 ('wide', ): ['C', 'F', 'O', 'S']}
+_REFERENCE_SPECTRA_FILES = {('wide', 'narrow'): ['Au', 'Co', 'Ni', 'Pt'],
+                            ('wide', ): ['C', 'F', 'O', 'S']}
 
 
-def load_default_setup() -> Dict[str, interp1d]:
+def load_reference_spectra() -> Dict[str, interp1d]:
 
     data = {}
-    for suffixes, elements in DEFAULT_SETUP.items():
+    for suffixes, elements in _REFERENCE_SPECTRA_FILES.items():
         for element in elements:
-            data[element] = load_multiple_files(f'data/reference_spectra/{element}', suffixes)
+            data[element] = load_multiple_references(f'data/reference_spectra/{element}', suffixes)
 
     return data
 
 
-def load_multiple_files(root_path: str, suffixes: Tuple[str]) -> interp1d:
+def load_multiple_references(root_path: str, suffixes: Tuple[str]) -> interp1d:
 
-    dfs = [load_single_file(f'{root_path}_{suffix}.dat') for suffix in suffixes]
+    dfs = [load_single_reference(f'{root_path}_{suffix}.dat') for suffix in suffixes]
     df = pd.concat(dfs, ignore_index=True)
 
     df = df.sort_values('energy')
@@ -38,7 +38,7 @@ def load_multiple_files(root_path: str, suffixes: Tuple[str]) -> interp1d:
     return interp1d(df['energy'], df['attn_coef'], bounds_error=True)
 
 
-def load_single_file(path: str) -> pd.DataFrame:
+def load_single_reference(path: str) -> pd.DataFrame:
 
     with open(path, 'r') as f:
 
@@ -65,6 +65,9 @@ def load_experiment_data(experiment):
     df['energy'] = data[1]['energy']  # Assumes all x-axes are the same
 
     return df
+
+
+REFERENCE_SPECTRA = load_reference_spectra()
 
 
 if __name__ == '__main__':
