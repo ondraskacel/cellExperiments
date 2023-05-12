@@ -8,7 +8,7 @@ from intensity import output_intensity
 
 if __name__ == '__main__':
 
-    theta_in = np.pi / 6
+    theta_in = np.pi / 180 * 31
     theta_out = np.pi / 180 * np.array([41, 34, 27, 20, 13])  # Detectors C1-5
 
     anode = Layer(depth=4.0,
