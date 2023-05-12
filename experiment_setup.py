@@ -124,6 +124,6 @@ CELLS_FIRST_BATCH = [
     _cell_1('I', scans=[23, 24, 25, 26, 27], output_suffix='_new_y_2'),
 ]
 
-CELLS_SECONDS_BATCH = [
+CELLS_SECOND_BATCH = [
     Experiment(name='op-CCM-J-LS04-a', scans=[19, 20, 21, 22, 23], input_suffix=_CELL_SUFFIX),
 ]
