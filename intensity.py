@@ -2,7 +2,7 @@ from typing import Union
 
 import numpy as np
 
-from config import Cell
+from materials import Cell
 
 
 def simple_integration(x: np.ndarray, low=0.0, high=1.0) -> Union[float, np.ndarray]:

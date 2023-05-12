@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from config import Layer, Cell
+from materials import Layer, Cell
 from data import load_experiment_data
 from intensity import output_intensity
 
