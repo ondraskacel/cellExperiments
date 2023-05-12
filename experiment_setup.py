@@ -66,6 +66,7 @@ def _pellet_1(**kwargs):
                       input_suffix=_PELLET_SUFFIX,
                       **kwargs)
 
+
 PELLETS_FIRST_BATCH = [
     _pellet_1(name='04LS-2_4mg'),
     _pellet_1(name='04LS-3mg'),

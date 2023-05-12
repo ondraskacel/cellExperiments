@@ -1,6 +1,7 @@
 from daxs.measurements import Hdf5Source, Xas
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import os
 
@@ -8,7 +9,7 @@ import os
 _POINT_RANGE = slice(1, -1)
 
 
-def analyze_experiment(experiment, normalize=False):
+def analyze_experiment(experiment, **kwargs):
     
     path = experiment.path()
     scans = experiment.included_scans()
@@ -23,30 +24,35 @@ def analyze_experiment(experiment, normalize=False):
         
         output_path = experiment.output_path(detector)
         
-        analyze_source(source, output_path, plot_title, normalize)
+        analyze_source(source, output_path, plot_title, **kwargs)
 
 
-def analyze_source(source, output_path, plot_title, normalize):
+def analyze_source(source, output_path, plot_title,
+                   normalize=False, save=True, plot_scans=True, plot_beam_damage=False):
     
     measurement = Xas(source)
     measurement.aggregate() 
     
-    plot_measurement(measurement, plot_title)
+    if plot_scans:
+        _plot_scans(measurement, plot_title)
+        
+    if plot_beam_damage:
+        _plot_beam_damage(measurement, plot_title)
         
     if normalize:
         measurement.normalize()
     
-    # Save the data
-    df = pd.DataFrame({'energy': measurement.x[_POINT_RANGE],
-                       'intensity': measurement.signal[_POINT_RANGE]})
+    if save:
+        df = pd.DataFrame({'energy': measurement.x[_POINT_RANGE],
+                           'intensity': measurement.signal[_POINT_RANGE]})
+        
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        df.to_pickle(output_path)
     
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_pickle(output_path)
     
+def _plot_scans(measurement, title):
     
-def plot_measurement(measurement, title):
-    
-    fig, ax = plt.subplots()
+    fig, ax = _setup_plot(title)
 
     for scan in measurement.scans:
         
@@ -56,11 +62,32 @@ def plot_measurement(measurement, title):
         ax.plot(x, signal / monitor)
 
     ax.plot(measurement.x[_POINT_RANGE], measurement.signal[_POINT_RANGE], color='orange')
+    plt.show()
     
+
+def _plot_beam_damage(measurement, title):
+    
+    fig, ax = _setup_plot(f'{title} beam damage')
+    
+    x = np.array([scan._x[_POINT_RANGE] for scan in measurement.scans])
+    signals = np.array([scan._signal[0, _POINT_RANGE] for scan in measurement.scans])
+    monitors = np.array([scan._monitor[_POINT_RANGE] for scan in measurement.scans])
+    
+    for i in range(4):
+        y = signals[i::4].sum(axis=0) / monitors[i::4].sum(axis=0)
+        ax.plot(x[0], y)
+        
+    plt.show()
+        
+
+def _setup_plot(title):
+    
+    fig, ax = plt.subplots()
     plt.xlabel('Energy (keV)')
     plt.ylabel('Intensity (arb. units)')
     plt.title(title)
-    plt.show()
+    
+    return fig, ax
                         
 
 if __name__ == '__main__':
@@ -70,8 +97,5 @@ if __name__ == '__main__':
     for cell in CELLS_FIRST_BATCH:
         analyze_experiment(cell)
         
-    for pellet in PELLETS_FIRST_BATCH:
-        analyze_experiment(pellet)
-        
-    for pellet in PELLETS_SECOND_BATCH:
+    for pellet in PELLETS_FIRST_BATCH + PELLETS_SECOND_BATCH:
         analyze_experiment(pellet)
