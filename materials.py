@@ -66,3 +66,8 @@ class Cell:
         # axis 0 <-> desired_depths, axis 1 <-> weights
         weights = np.clip(depths[:, None] - bounds[None, :], 0.0, self.layer_depths[None, :])
         return weights @ attn_coefs
+
+
+ANODE = Layer(depth=4.0, densities={'Pt': 0.1975, 'C': 0.960, 'F': 0.421, 'O': 0.048, 'S': 0.019})
+CATHODE = Layer(depth=10.0, densities={'Pt': 0.130, 'C': 0.509, 'F': 0.233, 'O': 0.027, 'S': 0.011, 'Ni': 0.017})
+NAFION = Layer(depth=50.0, formula={'H': 1, 'C': 9, 'O': 5, 'F': 17, 'S': 1}, density=1.96)
