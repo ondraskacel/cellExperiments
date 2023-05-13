@@ -20,7 +20,7 @@ def analyze_experiment(experiment, sum_over_detectors=False, **kwargs):
         mapping = experiment.mapping(detector)
         source = Hdf5Source(filename=path, included_scans=scans, data_mappings=mapping)
         
-        full_name = f'{experiment.name}{experiment.input_suffix}'
+        full_name = f'{experiment.name}{experiment.output_suffix}'
         plot_title = f'{full_name} detector {detector} scans={len(scans)}'
         
         output_path = experiment.output_path(detector)
@@ -111,13 +111,13 @@ def _setup_plot(title):
 
 if __name__ == '__main__':
     
-    from experiment_setup import CELLS_FIRST_BATCH, PELLETS_FIRST_BATCH, PELLETS_SECOND_BATCH
+    from experiment_setup import CELLS_FIRST_BATCH, CELLS_SECOND_BATCH, PELLETS_FIRST_BATCH, PELLETS_SECOND_BATCH
     
-    # for cell in CELLS_FIRST_BATCH:
-    #     analyze_experiment(cell)
+    for cell in CELLS_SECOND_BATCH:
+        analyze_experiment(cell, sum_over_detectors=True)
         
-    for pellet in PELLETS_SECOND_BATCH:
-        analyze_experiment(pellet, sum_over_detectors=True)
+    # for pellet in PELLETS_SECOND_BATCH:
+    #     analyze_experiment(pellet, sum_over_detectors=True)
     
     # from experiment_setup import CELLS_SECOND_BATCH
     
