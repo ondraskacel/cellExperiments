@@ -59,7 +59,8 @@ def load_experiment_data(experiment):
     if len(experiment.detectors) == 1:
         return pd.read_pickle(f'data/{experiment.output_path(None)}')
 
-    data = {detector: pd.read_pickle(f'data/{experiment.output_path(detector)}') for detector in experiment.detectors}
+    detectors = experiment.detectors + ['total']
+    data = {detector: pd.read_pickle(f'data/{experiment.output_path(detector)}') for detector in detectors}
 
     df = pd.DataFrame({f'intensity_{detector}': df['intensity'] for detector, df in data.items()})
     df['energy'] = data[1]['energy']  # Assumes all x-axes are the same
