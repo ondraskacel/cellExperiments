@@ -124,10 +124,23 @@ CELLS_FIRST_BATCH = [
     _cell_1('I', scans=[23, 24, 25, 26, 27], output_suffix='_new_y_2'),
 ]
 
+_CELL_NAME_2 = 'op-CCM-{i}-LS04-{s}'
+
+
+def _cell_2(name, **kwargs):
+    return Experiment(name=_CELL_NAME_2.format(i=name[0], s=name[1]),
+                      input_suffix=_CELL_SUFFIX,
+                      **kwargs)
+
+
 CELLS_SECOND_BATCH = [
-    Experiment(name='op-CCM-J-LS04-a', scans=[19, 20, 21, 22, 23], input_suffix=_CELL_SUFFIX),
-    Experiment(name='op-CCM-K-LS04-b', scans=list(range(7, 18)), input_suffix=_CELL_SUFFIX, output_suffix='_A'),
-    Experiment(name='op-CCM-K-LS04-b', scans=list(range(18, 29)), input_suffix=_CELL_SUFFIX, output_suffix='_B'),
-    Experiment(name='op-CCM-K-LS04-b', scans=list(range(29, 40)), input_suffix=_CELL_SUFFIX, output_suffix='_C'),
-    Experiment(name='op-CCM-K-LS04-b', scans=list(range(40, 51)), input_suffix=_CELL_SUFFIX, output_suffix='_D'),
+    _cell_2(name=('J', 'a'), scans=[19, 20, 21, 22, 23]),
+    _cell_2(name=('K', 'b'), scans=list(range(7, 18)), output_suffix='_A'),
+    _cell_2(name=('K', 'b'), scans=list(range(18, 29)), output_suffix='_B'),
+    _cell_2(name=('K', 'b'), scans=list(range(29, 40)), output_suffix='_C'),
+    _cell_2(name=('K', 'b'), scans=list(range(40, 51)), output_suffix='_D'),
+    _cell_2(name=('L', 'c'), scans=list(range(7, 18)), output_suffix='_A'),
+    _cell_2(name=('L', 'c'), scans=list(range(18, 30)), output_suffix='_B', outlier_indices=[2]),
+    _cell_2(name=('L', 'c'), scans=list(range(30, 42)), output_suffix='_C', outlier_indices=[6]),
+    _cell_2(name=('L', 'c'), scans=list(range(42, 53)), output_suffix='_D'),
 ]
