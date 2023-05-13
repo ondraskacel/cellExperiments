@@ -155,3 +155,14 @@ CELLS_SECOND_BATCH = [
     _cell_2(name=('L', 'c'), scans=list(range(97, 119)), output_suffix='_hold4'),
     _cell_2(name=('L', 'c'), scans=list(range(119, 141)), output_suffix='_ocp4'),
 ]
+
+# hack to get reference spectrum
+NI_TRANSMISSION = Experiment(name='sample',
+                             input_suffix=_CELL_SUFFIX,
+                             output_suffix='_ni_transmission',
+                             detectors=[None],
+                             scans=[32],)
+                             
+NI_TRANSMISSION.mapping = lambda detector: {'x': '.1/measurement/hdh_energy',
+                                            'signal': '.1/measurement/I00',
+                                            'monitor': '.1/measurement/I01'}
