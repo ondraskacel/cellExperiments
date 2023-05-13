@@ -9,11 +9,12 @@ import os
 _POINT_RANGE = slice(1, -1)
 
 
-def analyze_experiment(experiment, **kwargs):
+def analyze_experiment(experiment, sum_over_detectors=False, **kwargs):
     
     path = experiment.path()
     scans = experiment.included_scans()
     
+    signals_by_detector = []
     for detector in experiment.detectors:
         
         mapping = experiment.mapping(detector)
@@ -24,7 +25,22 @@ def analyze_experiment(experiment, **kwargs):
         
         output_path = experiment.output_path(detector)
         
-        analyze_source(source, output_path, plot_title, **kwargs)
+        x, signal, monitor = analyze_source(source, output_path, plot_title, **kwargs)
+        signals_by_detector.append(signal)
+        
+    if sum_over_detectors:
+        total_signal = np.array(signals_by_detector).sum(axis=0)
+        
+        # All monitors are the same -> we use the last one
+        df = pd.DataFrame({'energy': x[_POINT_RANGE],
+                           'intensity': (total_signal / monitor)[_POINT_RANGE]})
+        
+        plt.plot(df['energy'], df['intensity'])
+        plt.show()
+        
+        output_path = experiment.output_path('total')
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        df.to_pickle(output_path)
 
 
 def analyze_source(source, output_path, plot_title,
@@ -48,6 +64,9 @@ def analyze_source(source, output_path, plot_title,
         
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         df.to_pickle(output_path)
+    
+    # Return the denormalized signal
+    return measurement.x, measurement.signal * measurement.monitor, measurement.monitor
     
     
 def _plot_scans(measurement, title):
@@ -94,8 +113,13 @@ if __name__ == '__main__':
     
     from experiment_setup import CELLS_FIRST_BATCH, PELLETS_FIRST_BATCH, PELLETS_SECOND_BATCH
     
-    for cell in CELLS_FIRST_BATCH:
-        analyze_experiment(cell)
+    # for cell in CELLS_FIRST_BATCH:
+    #     analyze_experiment(cell)
         
-    for pellet in PELLETS_FIRST_BATCH + PELLETS_SECOND_BATCH:
-        analyze_experiment(pellet)
+    for pellet in PELLETS_SECOND_BATCH:
+        analyze_experiment(pellet, sum_over_detectors=True)
+    
+    # from experiment_setup import CELLS_SECOND_BATCH
+    
+    # for cell in CELLS_SECOND_BATCH:
+    #     analyze_experiment(cell)
