@@ -126,4 +126,8 @@ CELLS_FIRST_BATCH = [
 
 CELLS_SECOND_BATCH = [
     Experiment(name='op-CCM-J-LS04-a', scans=[19, 20, 21, 22, 23], input_suffix=_CELL_SUFFIX),
+    Experiment(name='op-CCM-K-LS04-b', scans=list(range(7, 18)), input_suffix=_CELL_SUFFIX, output_suffix='_A'),
+    Experiment(name='op-CCM-K-LS04-b', scans=list(range(18, 29)), input_suffix=_CELL_SUFFIX, output_suffix='_B'),
+    Experiment(name='op-CCM-K-LS04-b', scans=list(range(29, 40)), input_suffix=_CELL_SUFFIX, output_suffix='_C'),
+    Experiment(name='op-CCM-K-LS04-b', scans=list(range(40, 51)), input_suffix=_CELL_SUFFIX, output_suffix='_D'),
 ]
