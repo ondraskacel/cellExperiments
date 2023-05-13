@@ -57,7 +57,7 @@ def load_single_reference(path: str) -> pd.DataFrame:
 def load_experiment_data(experiment):
 
     if len(experiment.detectors) == 1:
-        return pd.read_pickle(f'data/{experiment.output_path(None)}')
+        return pd.read_pickle(f'data/{experiment.output_path(None)}').rename(columns={'intensity': 'intensity_total'})
 
     detectors = experiment.detectors + ['total']
     data = {detector: pd.read_pickle(f'data/{experiment.output_path(detector)}') for detector in detectors}
