@@ -111,15 +111,8 @@ def _setup_plot(title):
 
 if __name__ == '__main__':
     
-    from experiment_setup import CELLS_FIRST_BATCH, CELLS_SECOND_BATCH, PELLETS_FIRST_BATCH, PELLETS_SECOND_BATCH
-    
-    for cell in CELLS_SECOND_BATCH:
-        analyze_experiment(cell, sum_over_detectors=True)
+    from experiment_setup import PELLETS_THIRD_BATCH as pellets
         
-    # for pellet in PELLETS_SECOND_BATCH:
-    #     analyze_experiment(pellet, sum_over_detectors=True)
-    
-    # from experiment_setup import CELLS_SECOND_BATCH
-    
-    # for cell in CELLS_SECOND_BATCH:
-    #     analyze_experiment(cell)
+    for pellet in pellets:
+        analyze_experiment(pellet, sum_over_detectors=True)
+

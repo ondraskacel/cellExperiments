@@ -104,6 +104,13 @@ PELLETS_SECOND_BATCH = [
     _pellet_2(name='NiSO4-on-Naf112'),
 ]
 
+PELLETS_THIRD_BATCH = [
+    _pellet_2(name='NiO_2'),
+    _pellet_2(name='NiSO4-on-Naf112_2'),
+    _pellet_2(name='Ni-foil_2'),
+]
+
+
 _CELL_NAME = 'Ref-CCM-Naf212-Ni-Au-{name}_a'
 _CELL_SUFFIX = '_0001'
 
