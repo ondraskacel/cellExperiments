@@ -1,9 +1,12 @@
 from typing import Tuple, Dict
+
 from scipy.interpolate import interp1d
 
+import numpy as np
 import pandas as pd
 import re
 
+from experiment_setup import PELLETS_THIRD_BATCH, NI_TRANSMISSION
 
 ATOMIC_WEIGHTS = {
     'H': 1.008,
@@ -15,6 +18,12 @@ ATOMIC_WEIGHTS = {
 
 _REFERENCE_SPECTRA_FILES = {('wide', 'narrow'): ['Au', 'Co', 'Ni', 'Pt'],
                             ('wide', ): ['C', 'F', 'O', 'S']}
+
+NICKEL_REGIMES = {
+    'pre_edge': 8330.85,
+    'metallic': 8333.7,
+    'mixed': 8335.1,
+}
 
 
 def load_reference_spectra() -> Dict[str, interp1d]:
@@ -57,35 +66,48 @@ def load_single_reference(path: str) -> pd.DataFrame:
 def load_experiment_data(experiment):
 
     if len(experiment.detectors) == 1:
-        return pd.read_pickle(f'data/{experiment.output_path(None)}').rename(columns={'intensity': 'intensity_total'})
+        df = pd.read_pickle(f'data/{experiment.output_path(None)}').rename(columns={'intensity': 'intensity_total'})
+    else:
+        detectors = experiment.detectors + ['total']
+        data = {detector: pd.read_pickle(f'data/{experiment.output_path(detector)}') for detector in detectors}
 
-    detectors = experiment.detectors + ['total']
-    data = {detector: pd.read_pickle(f'data/{experiment.output_path(detector)}') for detector in detectors}
+        df = pd.DataFrame({f'intensity_{detector}': df['intensity'] for detector, df in data.items()})
+        df['energy'] = data[1]['energy']  # Assumes all x-axes are the same
 
-    df = pd.DataFrame({f'intensity_{detector}': df['intensity'] for detector, df in data.items()})
-    df['energy'] = data[1]['energy']  # Assumes all x-axes are the same
-
+    df['energy'] *= 1000  # Convert to eV
     return df
 
 
+def get_nickel_references():
+
+    pellets = {
+        'NiO': PELLETS_THIRD_BATCH[0],
+        'NiSO4': PELLETS_THIRD_BATCH[1],
+        'Ni-metallic': NI_TRANSMISSION,
+    }
+
+    references = {}
+    for name, pellet in pellets.items():
+
+        data = load_experiment_data(pellet)
+
+        if pellet.name == 'Ni-metallic':
+
+            # Data comes from transmission
+            data['intensity_total'] = np.log(data['intensity_total'])
+
+        # Subtract background
+        mask_background = data['energy'] < NICKEL_REGIMES['pre_edge']
+        background = data.loc[mask_background, 'intensity_total'].mean()
+
+        data['intensity'] = data['intensity_total'] - background
+
+        # Area normalization
+        norm = np.trapz(data['intensity'], data['energy'])
+        data['intensity'] /= norm
+        references[pellet.name] = interp1d(data['energy'], data['intensity'], bounds_error=True)
+
+    return references
+
+
 REFERENCE_SPECTRA = load_reference_spectra()
-
-
-if __name__ == '__main__':
-
-    from experiment_setup import CELLS_FIRST_BATCH, PELLETS_FIRST_BATCH, PELLETS_SECOND_BATCH
-
-    data = {}
-    for cell in CELLS_FIRST_BATCH:
-        data[(cell.name, cell.output_suffix)] = load_experiment_data(cell)
-
-    for pellet in PELLETS_FIRST_BATCH + PELLETS_SECOND_BATCH:
-        data[(pellet.name, pellet.output_suffix)] = load_experiment_data(pellet)
-
-    import matplotlib.pyplot as plt
-
-    for name, df in data.items():
-        plt.plot(df.filter(regex='intensity'), label=f'{name[0]}{name[1]}')
-
-    plt.legend()
-    plt.show()
