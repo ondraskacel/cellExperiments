@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.optimize import nnls
 
+from data import NICKEL_REGIMES
+
 
 def get_density(beta: np.ndarray):
 
@@ -13,43 +15,48 @@ def get_density(beta: np.ndarray):
     return np.exp(log_density)
 
 
-def decompose_into_references(df, references, detector, weights):
+def fit_nickel_spectra(df, references, detector, ax=None):
 
     spectra = {name: spectrum(df['energy']) for name, spectrum in references.items()}
+    target = df[f'intensity_{detector}'].values
 
-    X = np.ones((len(df['energy']), len(references) + 1))
-    for i, intensity in enumerate(spectra.values()):
-        X[:, i] = intensity
+    coefficients = {}
+    # errors = {}
 
-    y = df[f'intensity_{detector}'].values
-    w = weights / np.square(y)
+    # Fit background
+    mask_background = (df['energy'] < NICKEL_REGIMES['pre_edge'])
+    coefficients['background'] = target[mask_background.values].mean()  # noqa
 
-    xtx = X.T @ (w[:, None] * X)
-    beta_ = np.linalg.solve(xtx, X.T @ (w * y))
+    residual = target - coefficients['background']
 
-    beta, err = nnls(X * np.sqrt(w[:, None]), y * np.sqrt(w), maxiter=1000000)
+    # Fit the 'metallic' part of the spectrum
+    mask_metallic = (df['energy'] < NICKEL_REGIMES['mixed']) & (df['energy'] > NICKEL_REGIMES['pre_edge'])
 
-    y_hat = X @ beta
-    chi = np.sum(w * np.square(y - y_hat)) / (len(y) - X.shape[1])
-    errors = chi * np.linalg.inv(xtx)
-    sd = np.sqrt(np.diag(errors))
+    residual_metallic = residual[mask_metallic.values]  # noqa
+    metallic_reference = spectra['Ni-metallic'][mask_metallic.values]  # noqa
 
-    # if detector == 3:
-    #     print(...)
-    #
-    # plt.plot(df['energy'], y, label='data')
-    # plt.plot(df['energy'], X @ beta, label='fit')
-    # plt.plot(df['energy'], X @ beta__, label='fit')
-    #
-    # colors = ['red', 'green', 'blue']
-    # for i, name in enumerate(spectra.keys()):
-    #     component = X[:, i] * beta[i]
-    #     error = X[:, i] * sd[i]
-    #     plt.plot(df['energy'], component, label=f'{name} component', color=colors[i])
-    #     plt.plot(df['energy'], component + error, color=colors[i], linestyle='dashed')
-    #     plt.plot(df['energy'], component - error, color=colors[i], linestyle='dashed')
-    #
-    # plt.legend()
-    # plt.show()
+    # Explicit linear regression
+    coefficients['Ni-metallic'] = np.sum(residual_metallic * metallic_reference) / np.sum(np.square(metallic_reference))
 
-    return beta, sd
+    residual = residual - coefficients['Ni-metallic'] * spectra['Ni-metallic']
+
+    # Fit NiO and NiSO4
+    X = np.array([spectra[name] for name in ['NiO', 'NiSO4']]).T
+    (coefficients['NiO'], coefficients['NiSO4']), _ = nnls(X, residual)
+
+    if ax is not None:
+        ax.plot(df['energy'], target, label='data')
+
+        fit = np.zeros_like(df['energy'])
+        for name, spectrum in spectra.items():
+            contribution = spectrum * coefficients[name]
+            fit += contribution
+            ax.plot(df['energy'], contribution, label=name)
+
+        fit += coefficients['background']
+
+        ax.plot(df['energy'], fit, label='fit')
+        ax.legend()
+
+    return coefficients
+

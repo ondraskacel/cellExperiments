@@ -105,7 +105,7 @@ def get_nickel_references():
         # Area normalization
         norm = np.trapz(data['intensity'], data['energy'])
         data['intensity'] /= norm
-        references[pellet.name] = interp1d(data['energy'], data['intensity'], bounds_error=True)
+        references[name] = interp1d(data['energy'], data['intensity'], bounds_error=True)
 
     return references
 
