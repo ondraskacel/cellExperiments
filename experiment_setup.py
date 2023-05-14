@@ -154,6 +154,17 @@ CELLS_SECOND_BATCH = [
     _cell_2(name=('L', 'c'), scans=list(range(75, 97)), output_suffix='_hold3'),
     _cell_2(name=('L', 'c'), scans=list(range(97, 119)), output_suffix='_hold4'),
     _cell_2(name=('L', 'c'), scans=list(range(119, 141)), output_suffix='_ocp4'),
+    _cell_2(name=('N', 'e'), scans=list(range(4, 14)), output_suffix='_hold1_middle'),
+    _cell_2(name=('N', 'e'), scans=list(range(14, 24)), output_suffix='_hold1'),
+    _cell_2(name=('N', 'e'), scans=list(range(29, 39)), output_suffix='_hold2'),
+    _cell_2(name=('N', 'e'), scans=list(range(39, 49)), output_suffix='_ocp1'),
+    _cell_2(name=('N', 'e'), scans=list(range(49, 59)), output_suffix='_hold3'),
+    _cell_2(name=('N', 'e'), scans=list(range(59, 63)), output_suffix='_hold3_efgh'),
+    _cell_2(name=('N', 'e'), scans=[63], output_suffix='_hold3_x'),
+    _cell_2(name=('N', 'e'), scans=list(range(64, 68)), output_suffix='_ocp2_efgh'),
+    _cell_2(name=('N', 'e'), scans=[68], output_suffix='_ocp2_x'),
+    _cell_2(name=('N', 'e'), scans=list(range(73, 77)), output_suffix='_ocp2_efgh_realigned'),
+    _cell_2(name=('N', 'e'), scans=[77], output_suffix='_ocp2_x_realigned'),
 ]
 
 # hack to get reference spectrum
