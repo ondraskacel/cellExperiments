@@ -1,5 +1,6 @@
 from typing import Tuple, Dict
 
+import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
 import numpy as np
@@ -78,34 +79,56 @@ def load_experiment_data(experiment):
     return df
 
 
-def get_nickel_references():
+def get_nickel_references(plot=False):
 
-    pellets = {
+    experiments = {
         'NiO': PELLETS_THIRD_BATCH[0],
         'NiSO4': PELLETS_THIRD_BATCH[1],
         'Ni-metallic': NI_TRANSMISSION,
     }
 
+    data = {name: load_experiment_data(experiment) for name, experiment in experiments.items()}
+
+    # Get common energy range
+    energy_range = [max((df['energy'].min() for df in data.values())),
+                    min((df['energy'].max() for df in data.values()))]
+
     references = {}
-    for name, pellet in pellets.items():
+    for name, df in data.items():
 
-        data = load_experiment_data(pellet)
+        mask = (df['energy'] > energy_range[0]) & (df['energy'] < energy_range[1])
+        df = df[mask].reset_index(drop=True)
 
-        if pellet.name == 'Ni-metallic':
+        energy = df['energy']
+        intensity = df['intensity_total']
+
+        if name == 'Ni-metallic':
 
             # Data comes from transmission
-            data['intensity_total'] = np.log(data['intensity_total'])
+            intensity = np.log(intensity)
 
         # Subtract background
-        mask_background = data['energy'] < NICKEL_REGIMES['pre_edge']
-        background = data.loc[mask_background, 'intensity_total'].mean()
+        mask_background = energy < NICKEL_REGIMES['pre_edge']
+        background = intensity.loc[mask_background].mean()
 
-        data['intensity'] = data['intensity_total'] - background
+        intensity = intensity - background
 
         # Area normalization
-        norm = np.trapz(data['intensity'], data['energy'])
-        data['intensity'] /= norm
-        references[name] = interp1d(data['energy'], data['intensity'], bounds_error=True)
+        norm = np.trapz(intensity, energy)
+        intensity /= norm
+
+        references[name] = interp1d(energy, intensity, bounds_error=True)
+
+    if plot:
+        energy_grid = np.linspace(energy_range[0] + 1, energy_range[1] - 1, 1000)
+        for name, intensity in references.items():
+            plt.plot(energy_grid, intensity(energy_grid), label=name)
+
+        for name, value in NICKEL_REGIMES.items():
+            plt.axvline(value, label=name)
+
+        plt.legend()
+        plt.show()
 
     return references
 
