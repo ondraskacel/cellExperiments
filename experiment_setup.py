@@ -167,6 +167,12 @@ CELLS_SECOND_BATCH = [
     _cell_2(name=('N', 'e'), scans=[77], output_suffix='_ocp2_x_realigned'),
 ]
 
+CELL_P = [
+    _cell_2(name=('P', 'g'), scans=list(range(5, 17)), output_suffix='_hold1'),
+    _cell_2(name=('P', 'g'), scans=list(range(19, 31)), output_suffix='_ocp1', outlier_indices=[12]),
+    _cell_2(name=('P', 'g'), scans=list(range(33, 45)), output_suffix='_hold2'),
+]
+
 NI_FOIL = [
     Experiment(name='Ni-foil-thin', scans=list(range(6, 45)),
                input_suffix=_CELL_SUFFIX, output_suffix='_full_cell'),
