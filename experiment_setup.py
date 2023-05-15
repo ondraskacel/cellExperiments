@@ -167,6 +167,13 @@ CELLS_SECOND_BATCH = [
     _cell_2(name=('N', 'e'), scans=[77], output_suffix='_ocp2_x_realigned'),
 ]
 
+NI_FOIL = [
+    Experiment(name='Ni-foil-thin', scans=list(range(6, 45)),
+               input_suffix=_CELL_SUFFIX, output_suffix='_full_cell'),
+    Experiment(name='Ni-foil-thin', scans=list(range(51, 90)),
+               input_suffix=_CELL_SUFFIX, output_suffix='_half_cell'),  
+]
+
 # hack to get reference spectrum
 NI_TRANSMISSION = Experiment(name='sample',
                              input_suffix=_CELL_SUFFIX,
