@@ -1,2 +1,2 @@
 .idea/
-data/experiment_data/*.npy
+geometry_data/*.npy
