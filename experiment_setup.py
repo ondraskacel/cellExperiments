@@ -176,6 +176,7 @@ CELL_P = [
 
 CELL_Q = [
     _cell_2(name=('Q', 'h'), scans=list(range(8, 20)), output_suffix='_hold1'),
+    _cell_2(name=('Q', 'h'), scans=list(range(22, 34)), output_suffix='_ocp1'),
 ]
 
 NI_FOIL = [
