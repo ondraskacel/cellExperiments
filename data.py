@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import re
 
-from experiment_setup import PELLETS_THIRD_BATCH, NI_TRANSMISSION
+from experiment_setup import PELLETS_THIRD_BATCH, NI_TRANSMISSION, NI_FOIL, PELLETS_FIRST_BATCH, PELLETS_SECOND_BATCH
 
 ATOMIC_WEIGHTS = {
     'H': 1.008,
@@ -85,7 +85,12 @@ def get_nickel_references(plot=False):
     experiments = {
         'NiO': PELLETS_THIRD_BATCH[0],
         'NiSO4': PELLETS_THIRD_BATCH[1],
-        'Ni-metallic': NI_TRANSMISSION,
+        'PtNi-dealloyed': PELLETS_SECOND_BATCH[0],
+        'Ni-metallic_transmission': NI_TRANSMISSION,
+        'Ni-metallic_foil': NI_FOIL[1],
+        'NiAc2': PELLETS_FIRST_BATCH[5],
+        'NiAcAc2': PELLETS_FIRST_BATCH[6],
+        'NiOH2': PELLETS_FIRST_BATCH[7],
     }
 
     data = {name: load_experiment_data(experiment) for name, experiment in experiments.items()}
@@ -103,7 +108,7 @@ def get_nickel_references(plot=False):
         energy = df['energy']
         intensity = df['intensity_total']
 
-        if name == 'Ni-metallic':
+        if name == 'Ni-metallic_transmission':
 
             # Data comes from transmission
             intensity = np.log(intensity)
