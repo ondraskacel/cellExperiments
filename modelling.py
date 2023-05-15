@@ -71,6 +71,60 @@ def fit_nickel_spectra(df, references, detector, plot=True):
     return coefficients
 
 
+def fit_nickel_spectra_lasso(df, references, detector, fit_nio=False, ax=None):
+
+    names = [name for name in references.keys()]
+    if not fit_nio:
+        names.remove('NiO')
+
+    # Compute reference spectra
+    spectra = {name: references[name](df['energy']) for name in names}
+    target = df[f'intensity_{detector}'].values
+
+    coefficients = {}
+    error_variance = {}
+
+    # Fit background
+    mask_background = (df['energy'] < NICKEL_REGIMES['pre_edge'])
+    background = target[mask_background.values]  # noqa
+    coefficients['background'] = background.mean()
+    error_variance['background'] = background.var()
+
+    residual = target - coefficients['background']
+
+    # Fit the rest
+    X = np.array([spectrum for spectrum in spectra.values()]).T
+    coefs, errors = nonnegative_linear_model(X, residual)
+
+    for i, name in enumerate(names):
+        coefficients[name] = coefs[i]
+        error_variance[name] = errors[i, i]
+
+    # Optional plotting
+    if ax is not None:
+
+        ax.plot(df['energy'], target, label='data')
+
+        fit = np.zeros_like(df['energy'])
+        spectra['background'] = np.ones_like(df['energy'])
+
+        colors = ['red', 'green', 'blue', 'black']
+        for i, name in enumerate(names):
+
+            contribution = coefficients[name] * spectra[name]
+            std = np.sqrt(error_variance[name]) * spectra[name]
+
+            fit += contribution
+            ax.plot(df['energy'], contribution, label=name, color=colors[i])
+            ax.plot(df['energy'], contribution + std, linestyle='dashed', color=colors[i])
+            ax.plot(df['energy'], contribution - std, linestyle='dashed', color=colors[i])
+
+        ax.plot(df['energy'], fit, label='fit')
+        ax.legend()
+
+    return coefficients
+
+
 def nonnegative_linear_model(x, y):
 
     beta, rse = nnls(x, y)

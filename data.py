@@ -12,13 +12,14 @@ from experiment_setup import PELLETS_THIRD_BATCH, NI_TRANSMISSION
 ATOMIC_WEIGHTS = {
     'H': 1.008,
     'C': 12.011,
+    'N': 14.007,
     'O': 15.999,
     'F': 18.998,
     'S': 32.06,
 }
 
 _REFERENCE_SPECTRA_FILES = {('wide', 'narrow'): ['Au', 'Co', 'Ni', 'Pt'],
-                            ('wide', ): ['C', 'F', 'O', 'S']}
+                            ('wide', ): ['H', 'C', 'F', 'N', 'O', 'S']}
 
 NICKEL_REGIMES = {
     'pre_edge': 8330.85,
