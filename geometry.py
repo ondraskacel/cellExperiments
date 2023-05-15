@@ -3,9 +3,11 @@ import numpy as np
 
 from data import NICKEL_REGIMES, load_experiment_data
 from experiment_setup import NI_FOIL
+from intensity import output_intensity
+from materials import Layer, Cell, KAPTON
 
 
-def get_geometric_factor_ascan():
+def get_geometric_factor_ascan(plot=False):
 
     # Limits determined manually
     limits_x = [75, 160]
@@ -36,8 +38,9 @@ def get_geometric_factor_ascan():
         crystal_data = [data[:, limits_x[0]:limits_x[1], limit_y[0]: limit_y[1]] for limit_y in limits_y]
         intensities = np.array([np.sum(crystal, axis=(1, 2)) for crystal in crystal_data]).T
 
-        plt.plot(intensities)
-        plt.show()
+        if plot:
+            plt.plot(intensities)
+            plt.show()
 
         intensities = intensities[range[0]:range[1] + 1]
         coefficients[scan] = intensities.sum(axis=0)
@@ -57,7 +60,7 @@ def get_norm(energy, intensity):
     return np.trapz(intensity, energy)
 
 
-def get_geometric_factors():
+def get_geometric_factors_energy_scans():
 
     cells = {'in_cell': load_experiment_data(NI_FOIL[0]),
              'out_of_cell': load_experiment_data(NI_FOIL[1])}
@@ -69,13 +72,31 @@ def get_geometric_factors():
         norms[name] = np.array([get_norm(cell['energy'], cell[f'intensity_{detector}']) for detector in detectors])
         norms[name] = norms[name] / norms[name][0]
 
-        plt.plot(norms[name])
-    plt.show()
-
     return norms
 
 
-if __name__ == '__main__':
+def get_theoretical_angle_distribution():
 
-    print(get_geometric_factor_ascan())
-    print(get_geometric_factors())
+    ni_foil = Cell(layers=[KAPTON, Layer(depth=5.0, densities={'Ni': 8.908})])
+
+    density = np.zeros(7000)
+    density[6500:] = 1.0
+
+    theta_in = np.pi / 180 * 31
+    theta_out = np.pi / 180 * np.array([41, 34, 27, 20, 13])  # Detectors C1-5
+
+    energies = np.array([8400])
+
+    results = output_intensity(1.0, theta_in, theta_out, ni_foil, energies, 7480, density)
+    results = results[0]
+
+    results = results / results[0]
+    return results
+
+
+def get_geometric_factors():
+
+    factors = get_geometric_factors_energy_scans()
+    factors['theoretical'] = get_theoretical_angle_distribution()
+
+    return factors
