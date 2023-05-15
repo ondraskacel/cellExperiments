@@ -197,6 +197,7 @@ CELL_Q = [
     _cell_2(name=('Q', 'h'), scans=list(range(78, 90)), output_name='ocp3'),
     _cell_2(name=('Q', 'h'), scans=list(range(92, 104)), output_name='hold4'),
     _cell_2(name=('Q', 'h'), scans=list(range(106, 118)), output_name='hold_after_ast'),
+    _cell_2(name=('Q', 'h'), scans=list(range(120, 132)), output_name='ocp4'),
 ]
 
 ALL_CELLS = CELLS_FIRST_BATCH + CELL_I + CELL_J + CELL_K + CELL_L + CELL_N + CELL_P + CELL_Q
