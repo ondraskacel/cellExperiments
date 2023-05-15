@@ -150,10 +150,10 @@ CELL_J = [
 ]
     
 CELL_K = [
-    _cell_2(name=('K', 'b'), scans=list(range(7, 18)), output_name='A'),
-    _cell_2(name=('K', 'b'), scans=list(range(18, 29)), output_name='B'),
-    _cell_2(name=('K', 'b'), scans=list(range(29, 40)), output_name='C'),
-    _cell_2(name=('K', 'b'), scans=list(range(40, 51)), output_name='D'),
+    _cell_2(name=('K', 'b'), scans=list(range(7, 18)), output_name='ocp1'),
+    _cell_2(name=('K', 'b'), scans=list(range(18, 29)), output_name='hold1'),
+    _cell_2(name=('K', 'b'), scans=list(range(29, 40)), output_name='ocp2'),
+    _cell_2(name=('K', 'b'), scans=list(range(40, 51)), output_name='hold2'),
 ]
     
 CELL_L =[
@@ -195,6 +195,8 @@ CELL_Q = [
     _cell_2(name=('Q', 'h'), scans=list(range(50, 62)), output_name='ocp2'),
     _cell_2(name=('Q', 'h'), scans=list(range(64, 76)), output_name='hold3'),
     _cell_2(name=('Q', 'h'), scans=list(range(78, 90)), output_name='ocp3'),
+    _cell_2(name=('Q', 'h'), scans=list(range(92, 104)), output_name='hold4'),
+    _cell_2(name=('Q', 'h'), scans=list(range(106, 118)), output_name='hold_after_ast'),
 ]
 
 ALL_CELLS = CELLS_FIRST_BATCH + CELL_I + CELL_J + CELL_K + CELL_L + CELL_N + CELL_P + CELL_Q
