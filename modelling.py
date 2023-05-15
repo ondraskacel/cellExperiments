@@ -55,7 +55,7 @@ def fit_nickel_spectra(df, references, names, detector, ax=None):
             std = np.sqrt(error_variance[name]) * spectra[name]
 
             fit += contribution
-            ax.plot(df['energy'], contribution, label=name, color=colors[i])
+            ax.plot(df['energy'], contribution, label=f'{name}: {coefficients[name]:.3g}', color=colors[i])
             ax.plot(df['energy'], contribution + std, linestyle='dashed', color=colors[i])
             ax.plot(df['energy'], contribution - std, linestyle='dashed', color=colors[i])
 

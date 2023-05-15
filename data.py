@@ -85,12 +85,12 @@ def get_nickel_references(plot=False):
     experiments = {
         'NiO': PELLETS_THIRD_BATCH[0],
         'NiSO4': PELLETS_THIRD_BATCH[1],
-        'PtNi-dealloyed': PELLETS_SECOND_BATCH[0],
-        'Ni-metallic_transmission': NI_TRANSMISSION,
-        'Ni-metallic_foil': NI_FOIL[1],
         'NiAc2': PELLETS_FIRST_BATCH[5],
         'NiAcAc2': PELLETS_FIRST_BATCH[6],
         'NiOH2': PELLETS_FIRST_BATCH[7],
+        'PtNi-dealloyed': PELLETS_SECOND_BATCH[0],
+        'Ni-metallic_transmission': NI_TRANSMISSION,
+        'Ni-metallic_foil': NI_FOIL[1],
     }
 
     data = {name: load_experiment_data(experiment) for name, experiment in experiments.items()}
