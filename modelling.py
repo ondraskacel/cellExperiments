@@ -15,11 +15,7 @@ def get_density(beta: np.ndarray):
     return np.exp(log_density)
 
 
-def fit_nickel_spectra(df, references, detector, fit_nio=False, ax=None):
-
-    names = [name for name in references.keys()]
-    if not fit_nio:
-        names.remove('NiO')
+def fit_nickel_spectra(df, references, names, detector, ax=None):
 
     # Compute reference spectra
     spectra = {name: references[name](df['energy']) for name in names}
