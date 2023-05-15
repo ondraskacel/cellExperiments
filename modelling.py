@@ -59,7 +59,12 @@ def fit_nickel_spectra(df, references, names, detector, ax=None):
             ax.plot(df['energy'], contribution + std, linestyle='dashed', color=colors[i])
             ax.plot(df['energy'], contribution - std, linestyle='dashed', color=colors[i])
 
-        ax.plot(df['energy'], fit, label='fit')
+        suffix = ''
+        if len(names) == 2:
+            # Assumes Ni2+ is first
+            suffix = f'; ni2+/ni ratio: {coefficients[names[0]] / coefficients[names[1]]:.3g}'
+
+        ax.plot(df['energy'], fit, label=f'fit{suffix}')
         ax.legend()
 
     return coefficients
