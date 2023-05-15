@@ -174,6 +174,10 @@ CELL_P = [
     _cell_2(name=('P', 'g'), scans=list(range(47, 59)), output_suffix='_ocp2', outlier_indices=[11]),
 ]
 
+CELL_Q = [
+    _cell_2(name=('Q', 'h'), scans=list(range(8, 20)), output_suffix='_hold1'),
+]
+
 NI_FOIL = [
     Experiment(name='Ni-foil-thin', scans=list(range(6, 45)),
                input_suffix=_CELL_SUFFIX, output_suffix='_full_cell'),
