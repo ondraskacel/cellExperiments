@@ -1,47 +1,45 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from experiment_setup import CELLS_SECOND_BATCH, PELLETS_SECOND_BATCH
-from data import load_experiment_data
-from intensity import output_intensity
-from materials import Cell, Layer, NAFION, ANODE
+from experiment_setup import CELLS_SECOND_BATCH
+from data import load_experiment_data, get_nickel_references
+from modelling import fit_nickel_spectra
+
 
 if __name__ == '__main__':
 
-    platinum_density = 21.447
+    data = {f'{cell.name}{cell.output_suffix[1:]}': load_experiment_data(cell) for cell in CELLS_SECOND_BATCH[14:18]}
 
-    cell = Cell(layers=[
-        Layer(depth=150.0 / platinum_density * 1e-2, densities={'Pt': platinum_density}),
-        NAFION,
-        ANODE,
-    ])
+    references = get_nickel_references()
+    names = ['NiSO4', 'PtNi-dealloyed']
 
-    theta_in = np.pi / 180 * 31
-    theta_out = np.pi / 180 * np.array([41, 34, 27, 20, 13])  # Detectors C1-5
+    detectors = [1, 2, 3, 4, 5]
 
-    energies = np.array([8380])
+    coefficients = {}
+    for i, (run, df) in enumerate(data.items()):
 
-    nickel = {'top': np.zeros(10000),
-              'bottom': np.zeros(10000),
-              'original': np.zeros(10000)}
+        mask_energy = (df['energy'] < 8347) & (df['energy'] > 8329)
 
-    nickel['top'][:500] = 1.0
-    nickel['bottom'][-500:] = 1.0
+        for detector in detectors:
+            coefficients[(run, detector)] = fit_nickel_spectra(df.loc[mask_energy].reset_index(drop=True),
+                                                               references, names, detector)
 
-    nickel['uniform'] = np.ones(10000) * 500 / 10000
+    plt.show()
+    fig, ax = plt.subplots(2, len(data))
+    colors = ['red', 'green', 'blue', 'black']
 
-    results = {name: output_intensity(1.0, theta_in, theta_out, cell, energies, 7480, density) for name, density in
-               nickel.items()}
+    for i, (run, df) in enumerate(data.items()):
 
-    in_cell = load_experiment_data(CELLS_SECOND_BATCH[0])
-    ex_situ = load_experiment_data(PELLETS_SECOND_BATCH[9])
+        coefs = {}
+        for j, name in enumerate(names):
+            coefs[name] = np.array([coefficients[(run, detector)][name] for detector in detectors])
 
-    results['in_cell'] = in_cell.values[575 - 10:575 + 10, :5].mean(axis=0).reshape((1, -1))
-    results['ex_situ'] = ex_situ.values[585 - 10:585 + 10, :5].mean(axis=0).reshape((1, -1))
+            ax[0][i].scatter(detectors, coefs[name], label=name, color=colors[j])
+        ax[0][i].legend()
+        ax[0][i].set_title(run)
+        # ax[0][i].set_ylim([0.0, 0.7])
 
-    fig, ax = plt.subplots()
-    for name, result in results.items():
-        ax.plot(range(1, 6), result[0, :] / result[0, 0], label=name)
+        ax[1][i].plot(detectors, coefs['NiSO4'] / coefs['PtNi-dealloyed'])
+        # ax[1][i].set_ylim([10.0, 21.0])
 
-    plt.legend()
     plt.show()
