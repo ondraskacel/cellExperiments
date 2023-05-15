@@ -169,8 +169,9 @@ CELLS_SECOND_BATCH = [
 
 CELL_P = [
     _cell_2(name=('P', 'g'), scans=list(range(5, 17)), output_suffix='_hold1'),
-    _cell_2(name=('P', 'g'), scans=list(range(19, 31)), output_suffix='_ocp1', outlier_indices=[12]),
+    _cell_2(name=('P', 'g'), scans=list(range(19, 31)), output_suffix='_ocp1', outlier_indices=[11]),
     _cell_2(name=('P', 'g'), scans=list(range(33, 45)), output_suffix='_hold2'),
+    _cell_2(name=('P', 'g'), scans=list(range(47, 59)), output_suffix='_ocp2', outlier_indices=[11]),
 ]
 
 NI_FOIL = [
