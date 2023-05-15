@@ -17,7 +17,7 @@ class Experiment:
     detectors: List[Any] = field(default_factory=lambda: [1, 2, 3, 4, 5])
     outlier_indices: Tuple[int] = field(default_factory=list)
     input_suffix: str = ''
-    output_suffix: str = ''
+    output_name: str = ''
     
     def __post_init__(self):
         
@@ -44,9 +44,9 @@ class Experiment:
     def output_path(self, detector):
         
         if detector is None:
-            return f'experiment_data/{self.name}{self.output_suffix}.pickle'
+            return f'experiment_data/{self.name}/spectrum_{self.output_name}.pickle'
         
-        return f'experiment_data/{self.name}_{detector}{self.output_suffix}.pickle'
+        return f'experiment_data/{self.name}/spectrum_{self.output_name}_{detector}.pickle'
     
     def mapping(self, detector):
         
@@ -110,6 +110,8 @@ PELLETS_THIRD_BATCH = [
     _pellet_2(name='Ni-foil_2'),
 ]
 
+ALL_PELLETS = PELLETS_FIRST_BATCH + PELLETS_SECOND_BATCH + PELLETS_THIRD_BATCH
+
 
 _CELL_NAME = 'Ref-CCM-Naf212-Ni-Au-{name}_a'
 _CELL_SUFFIX = '_0001'
@@ -125,10 +127,13 @@ CELLS_FIRST_BATCH = [
     _cell_1('F', scans=[5, 6, 7, 8, 9]), 
     _cell_1('G', scans=[3, 4, 5, 6, 7]),
     _cell_1('H', scans=[3, 4, 5, 6, 7]),
-    _cell_1('I', scans=[8, 9, 10, 11, 12], output_suffix='_hs'),
-    _cell_1('I', scans=[13, 14, 15, 16, 17], output_suffix='_no_hs'),
-    _cell_1('I', scans=[18, 19, 20, 21, 22], output_suffix='_new_y_1'),
-    _cell_1('I', scans=[23, 24, 25, 26, 27], output_suffix='_new_y_2'),
+]
+    
+CELL_I = [
+    _cell_1('I', scans=[8, 9, 10, 11, 12], output_name='hs'),
+    _cell_1('I', scans=[13, 14, 15, 16, 17], output_name='no_hs'),
+    _cell_1('I', scans=[18, 19, 20, 21, 22], output_name='new_y_1'),
+    _cell_1('I', scans=[23, 24, 25, 26, 27], output_name='new_y_2'),
 ]
 
 _CELL_NAME_2 = 'op-CCM-{i}-LS04-{s}'
@@ -140,56 +145,68 @@ def _cell_2(name, **kwargs):
                       **kwargs)
 
 
-CELLS_SECOND_BATCH = [
+CELL_J = [
     _cell_2(name=('J', 'a'), scans=[19, 20, 21, 22, 23]),
-    _cell_2(name=('K', 'b'), scans=list(range(7, 18)), output_suffix='_A'),
-    _cell_2(name=('K', 'b'), scans=list(range(18, 29)), output_suffix='_B'),
-    _cell_2(name=('K', 'b'), scans=list(range(29, 40)), output_suffix='_C'),
-    _cell_2(name=('K', 'b'), scans=list(range(40, 51)), output_suffix='_D'),
-    _cell_2(name=('L', 'c'), scans=list(range(7, 18)), output_suffix='_ocp1'),
-    _cell_2(name=('L', 'c'), scans=list(range(18, 30)), output_suffix='_hold1', outlier_indices=[2]),
-    _cell_2(name=('L', 'c'), scans=list(range(30, 42)), output_suffix='_ocp2', outlier_indices=[6]),
-    _cell_2(name=('L', 'c'), scans=list(range(42, 53)), output_suffix='_hold2'),
-    _cell_2(name=('L', 'c'), scans=list(range(53, 75)), output_suffix='_ocp3'),
-    _cell_2(name=('L', 'c'), scans=list(range(75, 97)), output_suffix='_hold3'),
-    _cell_2(name=('L', 'c'), scans=list(range(97, 119)), output_suffix='_hold4'),
-    _cell_2(name=('L', 'c'), scans=list(range(119, 141)), output_suffix='_ocp4'),
-    _cell_2(name=('N', 'e'), scans=list(range(4, 14)), output_suffix='_hold1_middle'),
-    _cell_2(name=('N', 'e'), scans=list(range(14, 24)), output_suffix='_hold1'),
-    _cell_2(name=('N', 'e'), scans=list(range(29, 39)), output_suffix='_hold2'),
-    _cell_2(name=('N', 'e'), scans=list(range(39, 49)), output_suffix='_ocp1'),
-    _cell_2(name=('N', 'e'), scans=list(range(49, 59)), output_suffix='_hold3'),
-    _cell_2(name=('N', 'e'), scans=list(range(59, 63)), output_suffix='_hold3_efgh'),
-    _cell_2(name=('N', 'e'), scans=[63], output_suffix='_hold3_x'),
-    _cell_2(name=('N', 'e'), scans=list(range(64, 68)), output_suffix='_ocp2_efgh'),
-    _cell_2(name=('N', 'e'), scans=[68], output_suffix='_ocp2_x'),
-    _cell_2(name=('N', 'e'), scans=list(range(73, 77)), output_suffix='_ocp2_efgh_realigned'),
-    _cell_2(name=('N', 'e'), scans=[77], output_suffix='_ocp2_x_realigned'),
+]
+    
+CELL_K = [
+    _cell_2(name=('K', 'b'), scans=list(range(7, 18)), output_name='A'),
+    _cell_2(name=('K', 'b'), scans=list(range(18, 29)), output_name='B'),
+    _cell_2(name=('K', 'b'), scans=list(range(29, 40)), output_name='C'),
+    _cell_2(name=('K', 'b'), scans=list(range(40, 51)), output_name='D'),
+]
+    
+CELL_L =[
+    _cell_2(name=('L', 'c'), scans=list(range(7, 18)), output_name='ocp1'),
+    _cell_2(name=('L', 'c'), scans=list(range(18, 30)), output_name='hold1', outlier_indices=[2]),
+    _cell_2(name=('L', 'c'), scans=list(range(30, 42)), output_name='ocp2', outlier_indices=[6]),
+    _cell_2(name=('L', 'c'), scans=list(range(42, 53)), output_name='hold2'),
+    _cell_2(name=('L', 'c'), scans=list(range(53, 75)), output_name='ocp3'),
+    _cell_2(name=('L', 'c'), scans=list(range(75, 97)), output_name='hold3'),
+    _cell_2(name=('L', 'c'), scans=list(range(97, 119)), output_name='hold4'),
+    _cell_2(name=('L', 'c'), scans=list(range(119, 141)), output_name='ocp4'),
+]
+    
+CELL_N = [
+    _cell_2(name=('N', 'e'), scans=list(range(4, 14)), output_name='hold1_middle'),
+    _cell_2(name=('N', 'e'), scans=list(range(14, 24)), output_name='hold1'),
+    _cell_2(name=('N', 'e'), scans=list(range(29, 39)), output_name='hold2'),
+    _cell_2(name=('N', 'e'), scans=list(range(39, 49)), output_name='ocp1'),
+    _cell_2(name=('N', 'e'), scans=list(range(49, 59)), output_name='hold3'),
+    _cell_2(name=('N', 'e'), scans=list(range(59, 63)), output_name='hold3_efgh'),
+    _cell_2(name=('N', 'e'), scans=[63], output_name='hold3_x'),
+    _cell_2(name=('N', 'e'), scans=list(range(64, 68)), output_name='ocp2_efgh'),
+    _cell_2(name=('N', 'e'), scans=[68], output_name='ocp2_x'),
+    _cell_2(name=('N', 'e'), scans=list(range(73, 77)), output_name='ocp2_efgh_realigned'),
+    _cell_2(name=('N', 'e'), scans=[77], output_name='ocp2_x_realigned'),
 ]
 
 CELL_P = [
-    _cell_2(name=('P', 'g'), scans=list(range(5, 17)), output_suffix='_hold1'),
-    _cell_2(name=('P', 'g'), scans=list(range(19, 31)), output_suffix='_ocp1', outlier_indices=[11]),
-    _cell_2(name=('P', 'g'), scans=list(range(33, 45)), output_suffix='_hold2'),
-    _cell_2(name=('P', 'g'), scans=list(range(47, 59)), output_suffix='_ocp2', outlier_indices=[11]),
+    _cell_2(name=('P', 'g'), scans=list(range(5, 17)), output_name='hold1'),
+    _cell_2(name=('P', 'g'), scans=list(range(19, 31)), output_name='ocp1', outlier_indices=[11]),
+    _cell_2(name=('P', 'g'), scans=list(range(33, 45)), output_name='hold2'),
+    _cell_2(name=('P', 'g'), scans=list(range(47, 59)), output_name='ocp2', outlier_indices=[11]),
 ]
 
 CELL_Q = [
-    _cell_2(name=('Q', 'h'), scans=list(range(8, 20)), output_suffix='_hold1'),
-    _cell_2(name=('Q', 'h'), scans=list(range(22, 34)), output_suffix='_ocp1'),
+    _cell_2(name=('Q', 'h'), scans=list(range(8, 20)), output_name='hold1'),
+    _cell_2(name=('Q', 'h'), scans=list(range(22, 34)), output_name='ocp1'),
+    _cell_2(name=('Q', 'h'), scans=list(range(36, 48)), output_name='hold2'),
 ]
+
+ALL_CELLS = CELLS_FIRST_BATCH + CELL_I + CELL_J + CELL_K + CELL_L + CELL_N + CELL_P + CELL_Q
 
 NI_FOIL = [
     Experiment(name='Ni-foil-thin', scans=list(range(6, 45)),
-               input_suffix=_CELL_SUFFIX, output_suffix='_full_cell'),
+               input_suffix=_CELL_SUFFIX, output_name='full_cell'),
     Experiment(name='Ni-foil-thin', scans=list(range(51, 90)),
-               input_suffix=_CELL_SUFFIX, output_suffix='_half_cell'),  
+               input_suffix=_CELL_SUFFIX, output_name='half_cell'),  
 ]
 
 # hack to get reference spectrum
 NI_TRANSMISSION = Experiment(name='sample',
                              input_suffix=_CELL_SUFFIX,
-                             output_suffix='_ni_transmission',
+                             output_name='ni_transmission',
                              detectors=[None],
                              scans=[32],)
                              

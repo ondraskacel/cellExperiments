@@ -9,7 +9,7 @@ import os
 _POINT_RANGE = slice(1, -1)
 
 
-def analyze_experiment(experiment, sum_over_detectors=False, **kwargs):
+def analyze_experiment(experiment, sum_over_detectors=True, **kwargs):
     
     path = experiment.path()
     scans = experiment.included_scans()
@@ -20,7 +20,7 @@ def analyze_experiment(experiment, sum_over_detectors=False, **kwargs):
         mapping = experiment.mapping(detector)
         source = Hdf5Source(filename=path, included_scans=scans, data_mappings=mapping)
         
-        full_name = f'{experiment.name}{experiment.output_suffix}'
+        full_name = f'{experiment.name} {experiment.output_name}'
         plot_title = f'{full_name} detector {detector} scans={len(scans)}'
         
         output_path = experiment.output_path(detector)
@@ -111,8 +111,8 @@ def _setup_plot(title):
 
 if __name__ == '__main__':
     
-    from experiment_setup import PELLETS_THIRD_BATCH as pellets
-        
-    for pellet in pellets:
-        analyze_experiment(pellet, sum_over_detectors=True)
+    from experiment_setup import CELL_Q
+    
+    for experiment in CELL_Q:
+        analyze_experiment(experiment)
 
