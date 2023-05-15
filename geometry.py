@@ -1,45 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-def fit_one_axis(data, axis, eps):
-
-    ratio = np.cumsum(data.sum(axis=1-axis)) / data.sum()
-    low = (ratio < eps).sum()
-    high = data.shape[axis] - (ratio > 1.0 - eps).sum() + 1
-
-    return low, high
+from data import NICKEL_REGIMES, load_experiment_data
+from experiment_setup import NI_FOIL
 
 
-def fit_reference_crystal(full_data, frame, limits_x, limits_y):
+def get_geometric_factor_ascan():
 
-    data = full_data[frame, limits_x[0]:limits_x[1], limits_y[0]:limits_y[1]]
-
-    # Assume axis aligned setup
-    low_x, high_x = fit_one_axis(data, 0, eps=0.005)
-    low_y, high_y = fit_one_axis(data[low_x:high_x, :], 1, eps=0.03)  # y is less well-defined
-
-    return data[low_x:high_x, low_y:high_y]
-
-
-def fit_side_crystals(full_data, frame, limits_x, limits_y):
-
-    data = full_data[frame, limits_x[0]:limits_x[1], limits_y[0]:limits_y[1]]
-    low_y, high_y = fit_one_axis(data, 1, eps=0.03)  # y is less well-defined
-
-    return data[:, low_y:high_y]
-
-
-if __name__ == '__main__':
-
-    full_data = np.load('data/experiment_data/geometry_scan.npy')
-
-    fig, ax = plt.subplots(2)
-    ax[0].plot(full_data.sum(axis=(0, 2)))
-    ax[1].plot(full_data.sum(axis=(0, 1)))
-
-    plt.show()
-
+    # Limits determined manually
     limits_x = [75, 160]
     limits_y = [[40, 90],
                 [130, 180],
@@ -47,22 +15,67 @@ if __name__ == '__main__':
                 [300, 350],
                 [400, 450]]
 
-    frame = 27
-
-    rectangles = {
-        'reference': fit_reference_crystal(full_data, frame, limits_x, limits_y[0]),
+    # Good scans determined manually
+    # Selection is I02-independent
+    scans = {
+        'in_cell': (2, [21, 30]),
+        'out_of_cell': (48, [6, 75]),
     }
 
-    for detector in [2, 3, 4, 5]:
-        rectangles[str(detector)] = fit_reference_crystal(full_data, frame, limits_x, limits_y[detector-1])
+    coefficients = {}
+    for scan, (number, range) in scans.items():
+        data = np.load(f'data/geometry_data/scan_{number}.npy')
 
-    for name, rect in rectangles.items():
-        plt.plot(rect.sum(axis=1), label=name)
+        # Plot detector receptive field
+        # fig, ax = plt.subplots(2)
+        # ax[0].plot(data.sum(axis=(0, 2)))
+        # ax[1].plot(data.sum(axis=(0, 1)))
+        #
+        # plt.show()
 
-    plt.legend()
+        crystal_data = [data[:, limits_x[0]:limits_x[1], limit_y[0]: limit_y[1]] for limit_y in limits_y]
+        intensities = np.array([np.sum(crystal, axis=(1, 2)) for crystal in crystal_data]).T
+
+        plt.plot(intensities)
+        plt.show()
+
+        intensities = intensities[range[0]:range[1] + 1]
+        coefficients[scan] = intensities.sum(axis=0)
+        coefficients[scan] /= coefficients[scan][0]
+
+    return coefficients
+
+
+def get_norm(energy, intensity):
+
+    # Subtract background
+    mask_background = energy < NICKEL_REGIMES['pre_edge']
+    background = intensity.loc[mask_background].mean()
+
+    intensity = intensity - background
+
+    return np.trapz(intensity, energy)
+
+
+def get_geometric_factors():
+
+    cells = {'in_cell': load_experiment_data(NI_FOIL[0]),
+             'out_of_cell': load_experiment_data(NI_FOIL[1])}
+
+    detectors = [1, 2, 3, 4, 5]
+
+    norms = {}
+    for name, cell in cells.items():
+        norms[name] = np.array([get_norm(cell['energy'], cell[f'intensity_{detector}']) for detector in detectors])
+        norms[name] = norms[name] / norms[name][0]
+
+        plt.plot(norms[name])
     plt.show()
 
+    return norms
 
 
+if __name__ == '__main__':
 
-
+    print(get_geometric_factor_ascan())
+    print(get_geometric_factors())
