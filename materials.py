@@ -11,14 +11,17 @@ class Layer:
 
     depth: float  # in microns
 
+    # Internal dict with densities of elements
     _densities: Dict[str, float] = field(init=False)
 
+    # Initialization variables
     formula: InitVar[Dict[str, int] | None] = None
     density: InitVar[float | None] = None
     densities: InitVar[Dict[str, float] | None] = None
 
     def __post_init__(self, formula, density, densities):
 
+        # Setup with a density or chemical formula
         if densities is not None:
             self._densities = densities
         else:
@@ -26,17 +29,20 @@ class Layer:
 
             total_atomic_weight = 0.0
             self._densities = {}
+
+            # Compute total atomic weight per element
             for element, count in formula.items():
                 self._densities[element] = count * ATOMIC_WEIGHTS[element]
                 total_atomic_weight += self._densities[element]
 
+            # Normalize to real density of the material
             for element, count in formula.items():
                 self._densities[element] = self._densities[element] * density / total_atomic_weight
 
     def attn_coef(self, energies: np.ndarray) -> np.ndarray:
 
+        # Compute the total attenuation coefficient of the layer
         total_attn = np.zeros_like(energies, dtype=float)
-
         for element, density in self._densities.items():
 
             if element not in REFERENCE_SPECTRA:
@@ -63,11 +69,13 @@ class Cell:
         attn_coefs = np.array([layer.attn_coef(energies) for layer in self.layers])
         bounds = np.cumsum(self.layer_depths) - self.layer_depths
 
+        # The weights for a given depth are the distances spent in each layer to get there
         # axis 0 <-> desired_depths, axis 1 <-> weights
         weights = np.clip(depths[:, None] - bounds[None, :], 0.0, self.layer_depths[None, :])
         return weights @ attn_coefs
 
 
+# Reference materials used in real experiments
 ANODE = Layer(depth=4.0, densities={'Pt': 0.1975, 'C': 0.960, 'F': 0.421, 'O': 0.048, 'S': 0.019})
 CATHODE = Layer(depth=10.0, densities={'Pt': 0.130, 'C': 0.509, 'F': 0.233, 'O': 0.027, 'S': 0.011, 'Ni': 0.017})
 GDL = Layer(depth=215.0, densities={'C': 0.326})
