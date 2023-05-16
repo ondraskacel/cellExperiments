@@ -67,14 +67,16 @@ def load_single_reference(path: str) -> pd.DataFrame:
 
 def load_experiment_data(experiment):
 
+    data = {detector: pd.read_pickle(f'data/{experiment.output_path(detector)}') for detector in experiment.detectors}
+    first_detector = experiment.detectors[0]
+
     if len(experiment.detectors) == 1:
-        df = pd.read_pickle(f'data/{experiment.output_path(None)}').rename(columns={'intensity': 'intensity_total'})
+        df = data[first_detector].rename(columns={'intensity': 'intensity_total'})
     else:
-        detectors = experiment.detectors + ['total']
-        data = {detector: pd.read_pickle(f'data/{experiment.output_path(detector)}') for detector in detectors}
+        data['total'] = pd.read_pickle(f'data/{experiment.output_path("total")}')
 
         df = pd.DataFrame({f'intensity_{detector}': df['intensity'] for detector, df in data.items()})
-        df['energy'] = data[1]['energy']  # Assumes all x-axes are the same
+        df['energy'] = data[first_detector]['energy']  # Assumes all x-axes are the same
 
     df['energy'] *= 1000  # Convert to eV
     return df
