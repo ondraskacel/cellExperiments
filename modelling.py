@@ -39,7 +39,7 @@ def fit_nickel_spectra(df, references, detector, ax=None):
     spectra = {name: spectrum(df['energy']) for name, spectrum in references.items()}
     names = list(spectra.keys())
 
-    target = df[f'intensity_{detector}'].values if detector is not None else df[f'intensity_total']
+    target = df[f'intensity_{detector}'].values
     coefficients = {}
     error_variance = {}
 

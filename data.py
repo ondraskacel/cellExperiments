@@ -69,15 +69,11 @@ def load_single_reference(path: str) -> pd.DataFrame:
 def load_experiment_data(experiment):
 
     data = {detector: pd.read_pickle(f'data/{experiment.output_path(detector)}') for detector in experiment.detectors}
+    df = pd.DataFrame({f'intensity_{detector}': df['intensity'] for detector, df in data.items()})
+
     first_detector = experiment.detectors[0]
-
-    if len(experiment.detectors) == 1:
-        df = data[first_detector].rename(columns={'intensity': 'intensity_total'})
-    else:
-        data['total'] = pd.read_pickle(f'data/{experiment.output_path("total")}')
-
-        df = pd.DataFrame({f'intensity_{detector}': df['intensity'] for detector, df in data.items()})
-        df['energy'] = data[first_detector]['energy']  # Assumes all x-axes are the same
+    df['energy'] = data[first_detector]['energy']  # Assumes all x-axes are the same
+    df['intensity'] = df.filter(regex='intensity').sum(axis=1)  # Compute total intensity
 
     df['energy'] *= 1000  # Convert to eV
     return df
@@ -111,7 +107,7 @@ def get_nickel_references(plot=False):
         df = df[mask].reset_index(drop=True)
 
         energy = df['energy']
-        intensity = df['intensity_total']
+        intensity = df['intensity']
 
         if name == 'Ni-metallic_transmission':
 
