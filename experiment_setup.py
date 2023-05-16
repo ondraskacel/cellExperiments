@@ -200,7 +200,12 @@ CELL_Q = [
     _cell_2(name=('Q', 'h'), scans=list(range(120, 132)), output_name='ocp4'),
 ]
 
-ALL_CELLS = CELLS_FIRST_BATCH + CELL_I + CELL_J + CELL_K + CELL_L + CELL_N + CELL_P + CELL_Q
+CELL_R = [
+    _cell_2(name=('R', 'i'), scans=list(range(9, 21)), output_name='ocp1'),
+]
+
+ALL_CELLS = CELLS_FIRST_BATCH + CELL_I + CELL_J + CELL_K + CELL_L
+ALL_CELLS = ALL_CELLS + CELL_N + CELL_P + CELL_Q + CELL_R
 
 NI_FOIL = [
     Experiment(name='Ni-foil-thin', scans=list(range(6, 45)),
