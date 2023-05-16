@@ -1,14 +1,16 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from experiment_setup import CELL_Q, CELL_K, CELL_L, CELL_N, CELL_P
+from experiment_setup import CELL_Q, CELL_K, CELL_L, CELL_N, CELL_P, CELL_J, PELLETS_SECOND_BATCH, CELL_R, \
+    PELLETS_FIRST_BATCH
 from geometry import get_geometric_factors
 from modelling import fit_experiments
 
+
 if __name__ == '__main__':
 
-    cells = CELL_L
-    coefficients = fit_experiments(cells, 0)
+    cells = PELLETS_FIRST_BATCH
+    coefficients = fit_experiments(cells, 1)
 
     first_coef = next(iter(coefficients.values()))
     reference_names = [name for name in first_coef if name != 'background']
@@ -26,12 +28,13 @@ if __name__ == '__main__':
 
         name = experiment.output_name or experiment.name
         detectors = experiment.detectors
+        x_axis = detectors if detectors[0] is not None else [1]
 
         coefs_run = {}
         for j, reference in enumerate(reference_names):
 
             coefs_run[reference] = np.array([coefficients[(name, detector)][reference] for detector in detectors])  # * correction
-            ax[0][i].scatter(detectors, coefs_run[reference], label=reference, color=colors[j])
+            ax[0][i].scatter(x_axis, coefs_run[reference], label=reference, color=colors[j])
 
             coef_y_limit = max(coef_y_limit, np.max(coefs_run[reference]))
 
@@ -39,7 +42,7 @@ if __name__ == '__main__':
         ax[0][i].set_title(name)
 
         ratio = coefs_run[reference_names[0]] / coefs_run[reference_names[1]]
-        ax[1][i].plot(detectors, ratio)
+        ax[1][i].scatter(x_axis, ratio)
         ratio_y_limits[0] = min(ratio_y_limits[0], np.min(ratio))
         ratio_y_limits[1] = max(ratio_y_limits[1], np.max(ratio))
 

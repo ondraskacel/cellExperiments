@@ -8,21 +8,21 @@ from data import NICKEL_REGIMES, load_experiment_data, get_nickel_references
 def fit_experiments(runs, plot=-1):
 
     data = {f'{run.output_name or run.name}': load_experiment_data(run) for run in runs}
-
     references = get_nickel_references()
-    detectors = [1, 2, 3, 4, 5]
 
     coefficients = {}
     for i, (name, df) in enumerate(data.items()):
 
+        detectors = runs[i].detectors
+
         if plot == i:
-            fig, ax = plt.subplots(1, len(detectors))
+            fig, ax = plt.subplots(1, len(detectors), squeeze=False)
         else:
             ax = None
 
         for j, detector in enumerate(detectors):
             coefficients[(name, detector)] = fit_nickel_spectra(df, references, detector,
-                                                                ax=None if ax is None else ax[j])
+                                                                ax=None if ax is None else ax[0][j])
 
     if plot != -1:
         plt.show()
@@ -39,7 +39,7 @@ def fit_nickel_spectra(df, references, detector, ax=None):
     spectra = {name: spectrum(df['energy']) for name, spectrum in references.items()}
     names = list(spectra.keys())
 
-    target = df[f'intensity_{detector}'].values
+    target = df[f'intensity_{detector}'].values if detector is not None else df[f'intensity_total']
     coefficients = {}
     error_variance = {}
 
