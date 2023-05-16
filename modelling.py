@@ -9,8 +9,7 @@ def fit_experiments(runs, plot=-1):
 
     data = {f'{run.output_name or run.name}': load_experiment_data(run) for run in runs}
 
-    names = ['NiSO4', 'PtNi-dealloyed']
-    references = {name: spectrum for name, spectrum in get_nickel_references().items() if name in names}
+    references = get_nickel_references()
     detectors = [1, 2, 3, 4, 5]
 
     coefficients = {}
