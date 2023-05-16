@@ -215,6 +215,11 @@ CELL_R = [
     _cell_2(name=('R', 'i'), scans=list(range(79, 91)), output_name='hold3'),
     _cell_2(name=('R', 'i'), scans=list(range(93, 105)), output_name='ocp4'),
     _cell_2(name=('R', 'i'), scans=list(range(107, 119)), output_name='hold4'),
+    _cell_2(name=('R', 'i'), scans=list(range(121, 133)), output_name='ocp5'),
+    _cell_2(name=('R', 'i'), scans=list(range(133, 145)), output_name='hold5_instant'),
+    _cell_2(name=('R', 'i'), scans=list(range(145, 157)), output_name='ocp6_instant'),
+    _cell_2(name=('R', 'i'), scans=list(range(157, 169)), output_name='hold6_instant'),
+    _cell_2(name=('R', 'i'), scans=list(range(171, 182)), output_name='ocp7_instant'),
 ]
 
 ALL_CELLS = CELLS_FIRST_BATCH + CELL_I + CELL_J + CELL_K + CELL_L
