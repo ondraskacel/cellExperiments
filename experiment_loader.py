@@ -6,10 +6,11 @@ import pandas as pd
 import os
 
 
+# Endpoints tend to be outlying -> We do not use them
 _POINT_RANGE = slice(1, -1)
 
 
-def analyze_experiment(experiment, sum_over_detectors=True, **kwargs):
+def analyze_experiment(experiment, **kwargs):
     
     path = experiment.path()
     scans = experiment.included_scans()
@@ -17,6 +18,7 @@ def analyze_experiment(experiment, sum_over_detectors=True, **kwargs):
     signals_by_detector = []
     for detector in experiment.detectors:
         
+        # Load daxs source
         mapping = experiment.mapping(detector)
         source = Hdf5Source(filename=path, included_scans=scans, data_mappings=mapping)
         
@@ -27,8 +29,10 @@ def analyze_experiment(experiment, sum_over_detectors=True, **kwargs):
         
         x, signal, monitor = analyze_source(source, output_path, plot_title, **kwargs)
         signals_by_detector.append(signal)
+    
+    # Sum over detectors
+    if len(experiment.detectors) > 1:
         
-    if sum_over_detectors:
         total_signal = np.array(signals_by_detector).sum(axis=0)
         
         # All monitors are the same -> we use the last one
@@ -111,8 +115,7 @@ def _setup_plot(title):
 
 if __name__ == '__main__':
     
-    from experiment_setup import CELL_R
+    from experiment_setup import ALL_PELLETS, ALL_CELLS, NI_FOIL, NI_TRANSMISSION
     
-    for experiment in CELL_R[25:]:
+    for experiment in ALL_PELLETS + ALL_CELLS + NI_FOIL + [NI_TRANSMISSION]:
         analyze_experiment(experiment)
-
