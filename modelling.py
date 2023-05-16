@@ -7,7 +7,7 @@ from data import NICKEL_REGIMES, load_experiment_data, get_nickel_references
 
 def fit_experiments(runs, plot=-1):
 
-    data = {f'{run.output_name or run.name}': load_experiment_data(run) for run in runs}
+    data = {f'{run.name}{run.output_name}': load_experiment_data(run) for run in runs}
     references = get_nickel_references()
 
     coefficients = {}
@@ -20,9 +20,10 @@ def fit_experiments(runs, plot=-1):
         else:
             ax = None
 
+        coefficients[name] = {}
         for j, detector in enumerate(detectors):
-            coefficients[(name, detector)] = fit_nickel_spectra(df, references, detector,
-                                                                ax=None if ax is None else ax[0][j])
+            coefficients[name][detector] = fit_nickel_spectra(df, references, detector,
+                                                              ax=None if ax is None else ax[0][j])
 
     if plot != -1:
         plt.show()

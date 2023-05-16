@@ -1,3 +1,5 @@
+from functools import cache
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -96,6 +98,7 @@ def get_theoretical_angle_distribution():
     return results
 
 
+@cache
 def get_geometric_factors():
 
     factors = get_geometric_factors_energy_scans()
