@@ -203,6 +203,13 @@ CELL_Q = [
 CELL_R = [
     _cell_2(name=('R', 'i'), scans=list(range(9, 21)), output_name='ocp1'),
     _cell_2(name=('R', 'i'), scans=list(range(23, 35)), output_name='hold1'),
+    _cell_2(name=('R', 'i'), scans=list(range(37, 49)), output_name='quick_hold'),
+    _cell_2(name=('R', 'i'), scans=list(range(37, 43)), output_name='quick_hold_1-6'),
+    _cell_2(name=('R', 'i'), scans=list(range(43, 49)), output_name='quick_hold_7-12'),
+    _cell_2(name=('R', 'i'), scans=list(range(37, 40)), output_name='quick_hold_1-3'),
+    _cell_2(name=('R', 'i'), scans=list(range(40, 43)), output_name='quick_hold_4-6'),
+    _cell_2(name=('R', 'i'), scans=list(range(43, 46)), output_name='quick_hold_7-9'),
+    _cell_2(name=('R', 'i'), scans=list(range(46, 49)), output_name='quick_hold_10-12'),
 ]
 
 ALL_CELLS = CELLS_FIRST_BATCH + CELL_I + CELL_J + CELL_K + CELL_L
