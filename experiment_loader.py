@@ -15,7 +15,6 @@ def analyze_experiment(experiment, **kwargs):
     path = experiment.path()
     scans = experiment.included_scans()
     
-    signals_by_detector = []
     for detector in experiment.detectors:
         
         # Load daxs source
@@ -26,29 +25,11 @@ def analyze_experiment(experiment, **kwargs):
         plot_title = f'{full_name} detector {detector} scans={len(scans)}'
         
         output_path = experiment.output_path(detector)
-        
-        x, signal, monitor = analyze_source(source, output_path, plot_title, **kwargs)
-        signals_by_detector.append(signal)
-    
-    # Sum over detectors
-    if len(experiment.detectors) > 1:
-        
-        total_signal = np.array(signals_by_detector).sum(axis=0)
-        
-        # All monitors are the same -> we use the last one
-        df = pd.DataFrame({'energy': x[_POINT_RANGE],
-                           'intensity': (total_signal / monitor)[_POINT_RANGE]})
-        
-        plt.plot(df['energy'], df['intensity'])
-        plt.show()
-        
-        output_path = experiment.output_path('total')
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        df.to_pickle(output_path)
+        analyze_source(source, output_path, plot_title, **kwargs)
 
 
 def analyze_source(source, output_path, plot_title,
-                   normalize=False, save=True, plot_scans=True, plot_beam_damage=False):
+                   save=True, plot_scans=True, plot_beam_damage=False):
     
     measurement = Xas(source)
     measurement.aggregate() 
@@ -58,9 +39,6 @@ def analyze_source(source, output_path, plot_title,
         
     if plot_beam_damage:
         _plot_beam_damage(measurement, plot_title)
-        
-    if normalize:
-        measurement.normalize()
     
     if save:
         df = pd.DataFrame({'energy': measurement.x[_POINT_RANGE],
@@ -68,9 +46,6 @@ def analyze_source(source, output_path, plot_title,
         
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         df.to_pickle(output_path)
-    
-    # Return the denormalized signal
-    return measurement.x, measurement.signal * measurement.monitor, measurement.monitor
     
     
 def _plot_scans(measurement, title):
