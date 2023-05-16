@@ -23,8 +23,8 @@ _REFERENCE_SPECTRA_FILES = {('wide', 'narrow'): ['Au', 'Co', 'Ni', 'Pt'],
 
 NICKEL_REGIMES = {
     'pre_edge': 8330.85,
-    'metallic': 8333.7,
-    'mixed': 8335.1,
+    'fit_from': 8329,
+    'fit_to': 8347,
 }
 
 

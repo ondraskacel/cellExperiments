@@ -1,26 +1,46 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import nnls
 
-from data import NICKEL_REGIMES
+from data import NICKEL_REGIMES, load_experiment_data, get_nickel_references
 
 
-def get_density(beta: np.ndarray):
+def fit_experiments(runs, plot=-1):
 
-    x_grid = np.linspace(0.0, 1.0, 51)
+    data = {f'{run.output_name or run.name}': load_experiment_data(run) for run in runs}
 
-    log_density = beta[0]
-    log_density += beta[1] * (2 * x_grid - 1)
-    log_density += beta[2] * (6 * np.square(x_grid) - 6 * x_grid + 1)
+    names = ['NiSO4', 'PtNi-dealloyed']
+    references = {name: spectrum for name, spectrum in get_nickel_references().items() if name in names}
+    detectors = [1, 2, 3, 4, 5]
 
-    return np.exp(log_density)
+    coefficients = {}
+    for i, (name, df) in enumerate(data.items()):
+
+        if plot == i:
+            fig, ax = plt.subplots(1, len(detectors))
+        else:
+            ax = None
+
+        for j, detector in enumerate(detectors):
+            coefficients[(name, detector)] = fit_nickel_spectra(df, references, detector,
+                                                                ax=None if ax is None else ax[j])
+
+    if plot != -1:
+        plt.show()
+
+    return coefficients
 
 
-def fit_nickel_spectra(df, references, names, detector, ax=None):
+def fit_nickel_spectra(df, references, detector, ax=None):
+
+    mask_energy = (df['energy'] > NICKEL_REGIMES['fit_from']) & (df['energy'] < NICKEL_REGIMES['fit_to'])
+    df = df.loc[mask_energy].reset_index(drop=True)
 
     # Compute reference spectra
-    spectra = {name: references[name](df['energy']) for name in names}
-    target = df[f'intensity_{detector}'].values
+    spectra = {name: spectrum(df['energy']) for name, spectrum in references.items()}
+    names = list(spectra.keys())
 
+    target = df[f'intensity_{detector}'].values
     coefficients = {}
     error_variance = {}
 
@@ -55,9 +75,9 @@ def fit_nickel_spectra(df, references, names, detector, ax=None):
             std = np.sqrt(error_variance[name]) * spectra[name]
 
             fit += contribution
-            ax.plot(df['energy'], contribution, label=f'{name}: {coefficients[name]:.3g}', color=colors[i])
-            ax.plot(df['energy'], contribution + std, linestyle='dashed', color=colors[i])
-            ax.plot(df['energy'], contribution - std, linestyle='dashed', color=colors[i])
+            ax.plot(df['energy'], contribution, label=f'{name}: {coefficients[name]:.3g}', color=colors[i % 4])
+            ax.plot(df['energy'], contribution + std, linestyle='dashed', color=colors[i % 4])
+            ax.plot(df['energy'], contribution - std, linestyle='dashed', color=colors[i % 4])
 
         suffix = ''
         if len(names) == 2:
