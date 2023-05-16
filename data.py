@@ -46,6 +46,7 @@ def load_multiple_references(root_path: str, suffixes: Tuple[str]) -> interp1d:
     df = df.sort_values('energy')
     df = df.drop_duplicates(subset='energy', ignore_index=True)
 
+    # Return a 'function: energies -> attenuation coefficients'
     return interp1d(df['energy'], df['attn_coef'], bounds_error=True)
 
 
@@ -84,6 +85,8 @@ def load_experiment_data(experiment):
 
 def get_nickel_references(plot=False):
 
+    # Selection and naming of reference spectra for fitting
+    # Ni2+ should come first to keep ratio plots elsewhere consistent
     experiments = {
         # 'NiO': PELLETS_THIRD_BATCH[0],
         'NiSO4': PELLETS_THIRD_BATCH[1],
@@ -129,6 +132,7 @@ def get_nickel_references(plot=False):
 
     if plot:
         energy_grid = np.linspace(energy_range[0] + 1, energy_range[1] - 1, 1000)
+
         for name, intensity in references.items():
             plt.plot(energy_grid, intensity(energy_grid), label=name)
 
