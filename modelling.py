@@ -54,7 +54,7 @@ def fit_nickel_spectra(df, references, detector, ax=None):
 
     # Fit the rest - errors are computed independently of the background fitting error (correct in practice)
     X = np.array([spectrum for spectrum in spectra.values()]).T
-    coefs, errors = nonnegative_linear_model(X, residual)
+    coefs, errors = non_negative_linear_model(X, residual)
 
     for i, name in enumerate(names):
         coefficients[name] = coefs[i]
@@ -90,7 +90,7 @@ def fit_nickel_spectra(df, references, detector, ax=None):
     return coefficients
 
 
-def nonnegative_linear_model(x, y):
+def non_negative_linear_model(x, y):
 
     beta, rse = nnls(x, y)
 
