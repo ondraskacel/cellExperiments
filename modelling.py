@@ -93,7 +93,7 @@ def non_negative_linear_model(x, y):
 
     beta, rse = nnls(x, y)
 
-    # Handle zeros for beta = 0.9 in error computation
+    # Handle zeros for beta = 0.0 in error computation
     # We set the errors for them to 0 and compute the others as if the model had only the non_zero regressors
     mask_zero = np.isclose(beta, 0.0)
     xtx = x.T @ x
