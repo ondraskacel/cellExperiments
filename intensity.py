@@ -6,7 +6,6 @@ from materials import Cell
 
 
 def output_intensity(
-        input_intensity: float,
         theta_in: float,
         theta_out: np.ndarray,
         cell: Cell,
@@ -15,14 +14,14 @@ def output_intensity(
         nickel_density: np.ndarray,
         ) -> Union[float, np.ndarray]:
     """
-    Assumes:
-    - nickel does not contribute to the overall absorption
-    - the outgoing angle is a single number
-    TODO: assess (and remove?) the assumptions
+    The function ignores multiplicative factors like:
+        - input intensity
+        - intensity emitted per intensity incoming per density
+        ...
     """
 
     # The sine comes from the change of variables length -> depth
-    multiplier = input_intensity / np.sin(theta_in)
+    multiplier = 1.0 / np.sin(theta_in)
 
     grid_size = len(nickel_density)
     depth_grid = np.linspace(0.0, cell.total_depth, grid_size)

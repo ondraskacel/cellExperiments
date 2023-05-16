@@ -89,7 +89,7 @@ def get_theoretical_angle_distribution():
 
     energies = np.array([8400])
 
-    results = output_intensity(1.0, theta_in, theta_out, ni_foil, energies, 7480, density)
+    results = output_intensity(theta_in, theta_out, ni_foil, energies, 7480, density)
     results = results[0]
 
     results = results / results[0]

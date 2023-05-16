@@ -48,7 +48,7 @@ def run_angle_comparison_naf212_ni_au():
     nickel['original'][int(54 / 108 * grid_size)] = 12.0
     nickel['original'][int(104 / 108 * grid_size)] = 11.0
 
-    results = {name: output_intensity(1.0, theta_in, theta_out, cell, energies, energy_out, density)
+    results = {name: output_intensity(theta_in, theta_out, cell, energies, energy_out, density)
                for name, density in nickel.items()}
 
     # real data
@@ -91,7 +91,7 @@ def run_ls_04_ccm_comparison():
 
     nickel['uniform'] = np.ones(grid_size)
 
-    results = {name: output_intensity(1.0, theta_in, theta_out, cell, energies, energy_out, density)
+    results = {name: output_intensity(theta_in, theta_out, cell, energies, energy_out, density)
                for name, density in nickel.items()}
 
     in_cell = load_experiment_data(CELL_J[0])
