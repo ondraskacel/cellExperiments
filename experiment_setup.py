@@ -202,6 +202,7 @@ CELL_Q = [
 
 CELL_R = [
     _cell_2(name=('R', 'i'), scans=list(range(9, 21)), output_name='ocp1'),
+    _cell_2(name=('R', 'i'), scans=list(range(23, 35)), output_name='hold1'),
 ]
 
 ALL_CELLS = CELLS_FIRST_BATCH + CELL_I + CELL_J + CELL_K + CELL_L
