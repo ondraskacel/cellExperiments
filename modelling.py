@@ -68,16 +68,17 @@ def fit_nickel_spectra(df, references, detector, ax=None):
         fit = np.zeros_like(df['energy'])
         spectra['background'] = np.ones_like(df['energy'])
 
-        colors = ['red', 'green', 'blue', 'black']
         for i, name in enumerate(names + ['background']):
 
             contribution = coefficients[name] * spectra[name]
             std = np.sqrt(error_variance[name]) * spectra[name]
 
             fit += contribution
-            ax.plot(df['energy'], contribution, label=f'{name}: {coefficients[name]:.3g}', color=colors[i % 4])
-            ax.plot(df['energy'], contribution + std, linestyle='dashed', color=colors[i % 4])
-            ax.plot(df['energy'], contribution - std, linestyle='dashed', color=colors[i % 4])
+
+            color = 'rgb'[i % 4]
+            ax.plot(df['energy'], contribution, label=f'{name}: {coefficients[name]:.3g}', color=color)
+            ax.plot(df['energy'], contribution + std, linestyle='dashed', color=color)
+            ax.plot(df['energy'], contribution - std, linestyle='dashed', color=color)
 
         suffix = ''
         if len(names) == 2:

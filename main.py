@@ -58,7 +58,7 @@ def plot_experiments(experiments, coefficients, geometric_correction=None):
 if __name__ == '__main__':
 
     cells_ = CELL_R[:3] + CELL_R[9:]
-    fit = fit_experiments(cells_, -1)
+    fit = fit_experiments(cells_, 0)
 
     plot_experiments(cells_, fit)
 
