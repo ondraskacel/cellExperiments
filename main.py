@@ -1,45 +1,50 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from experiment_setup import CELLS_SECOND_BATCH
-from data import load_experiment_data, get_nickel_references
-from modelling import fit_nickel_spectra
-
+from experiment_setup import CELL_Q, CELL_K, CELL_L, CELL_N, CELL_P
+from geometry import get_geometric_factors
+from modelling import fit_experiments
 
 if __name__ == '__main__':
 
-    data = {f'{cell.name}{cell.output_suffix[1:]}': load_experiment_data(cell) for cell in CELLS_SECOND_BATCH[14:18]}
+    cells = CELL_L
+    coefficients = fit_experiments(cells, 0)
 
-    references = get_nickel_references()
-    names = ['NiSO4', 'PtNi-dealloyed']
+    first_coef = next(iter(coefficients.values()))
+    reference_names = [name for name in first_coef if name != 'background']
 
-    detectors = [1, 2, 3, 4, 5]
+    colors = ['red', 'green', 'blue']
 
-    coefficients = {}
-    for i, (run, df) in enumerate(data.items()):
+    factors = get_geometric_factors()
+    correction = factors['theoretical'] / factors['in_cell']
 
-        mask_energy = (df['energy'] < 8347) & (df['energy'] > 8329)
+    fig, ax = plt.subplots(2, len(cells))
+    coef_y_limit = 0.0
+    ratio_y_limits = [np.inf, 0]
 
-        for detector in detectors:
-            coefficients[(run, detector)] = fit_nickel_spectra(df.loc[mask_energy].reset_index(drop=True),
-                                                               references, names, detector)
+    for i, experiment in enumerate(cells):
 
-    plt.show()
-    fig, ax = plt.subplots(2, len(data))
-    colors = ['red', 'green', 'blue', 'black']
+        name = experiment.output_name or experiment.name
+        detectors = experiment.detectors
 
-    for i, (run, df) in enumerate(data.items()):
+        coefs_run = {}
+        for j, reference in enumerate(reference_names):
 
-        coefs = {}
-        for j, name in enumerate(names):
-            coefs[name] = np.array([coefficients[(run, detector)][name] for detector in detectors])
+            coefs_run[reference] = np.array([coefficients[(name, detector)][reference] for detector in detectors])  # * correction
+            ax[0][i].scatter(detectors, coefs_run[reference], label=reference, color=colors[j])
 
-            ax[0][i].scatter(detectors, coefs[name], label=name, color=colors[j])
+            coef_y_limit = max(coef_y_limit, np.max(coefs_run[reference]))
+
         ax[0][i].legend()
-        ax[0][i].set_title(run)
-        # ax[0][i].set_ylim([0.0, 0.7])
+        ax[0][i].set_title(name)
 
-        ax[1][i].plot(detectors, coefs['NiSO4'] / coefs['PtNi-dealloyed'])
-        # ax[1][i].set_ylim([10.0, 21.0])
+        ratio = coefs_run[reference_names[0]] / coefs_run[reference_names[1]]
+        ax[1][i].plot(detectors, ratio)
+        ratio_y_limits[0] = min(ratio_y_limits[0], np.min(ratio))
+        ratio_y_limits[1] = max(ratio_y_limits[1], np.max(ratio))
+
+    for i in range(len(cells)):
+        ax[0][i].set_ylim([0.0, coef_y_limit])
+        ax[1][i].set_ylim(ratio_y_limits)
 
     plt.show()
