@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from experiment_setup import CELLS_FIRST_BATCH, PELLETS_SECOND_BATCH, CELL_J
+from experiment_setup import PELLETS_SECOND_BATCH, CELL_J, CELL_I
 from materials import Layer, Cell, ANODE, NAFION
 from data import load_experiment_data
 from intensity import output_intensity
@@ -29,32 +29,38 @@ def run_angle_comparison_naf212_ni_au():
     cell = Cell(layers)
 
     energies = np.array([8400])
+    energy_out = 7480
 
-    nickel = {'top': np.zeros(10000),
-              'bottom': np.zeros(10000),
-              'original': np.zeros(10000)}
+    grid_size = 10000
 
-    nickel['top'][:500] = 1.0
-    nickel['bottom'][-500:] = 1.0
+    # Setup hypothetical densities (for angle distribution, only the relative placement matters)
+    nickel = {'top': np.zeros(grid_size),
+              'bottom': np.zeros(grid_size),
+              'original': np.zeros(grid_size)}
 
-    nickel['uniform'] = np.ones(10000) * 500 / 10000
+    nickel['top'][:int(0.05 * grid_size)] = 1.0
+    nickel['bottom'][-int(0.05 * grid_size):] = 1.0
 
-    nickel['original'][int(4 / 108 * 10000)] = 12.0
-    nickel['original'][int(54 / 108 * 10000)] = 12.0
-    nickel['original'][int(104 / 108 * 10000)] = 11.0
+    nickel['uniform'] = np.ones(grid_size)
 
-    results = {name: output_intensity(1.0, theta_in, theta_out, cell, energies, 7480, density) for name, density in nickel.items()}
+    # Originally, the nickel is located near the gold
+    nickel['original'][int(4 / 108 * grid_size)] = 12.0
+    nickel['original'][int(54 / 108 * grid_size)] = 12.0
+    nickel['original'][int(104 / 108 * grid_size)] = 11.0
+
+    results = {name: output_intensity(1.0, theta_in, theta_out, cell, energies, energy_out, density)
+               for name, density in nickel.items()}
 
     # real data
-    for cell in CELLS_FIRST_BATCH[3:]:
+    cell = CELL_I[0]
+    data = load_experiment_data(cell)
 
-        data = load_experiment_data(cell)
-        # Band of energies close to 8400 ev
-        results[f'{cell.name}{cell.output_suffix}'] = data.values[777-10:777+10, :5].mean(axis=0).reshape((1, -1))
+    # Band of energies close to 8400 ev
+    results[f'real_data: {cell.output_name or cell.name}'] = data.values[777-10:777+10, :5].mean(axis=0).reshape((1, -1))
 
     fig, ax = plt.subplots()
     for name, result in results.items():
-        ax.plot(range(1, 6), result[0, :] / result[0, 0], label=name)
+        ax.plot(cell.detectors, result[0, :] / result[0, 0], label=name)
 
     plt.legend()
     plt.show()
@@ -73,18 +79,20 @@ def run_ls_04_ccm_comparison():
     theta_out = np.pi / 180 * np.array([41, 34, 27, 20, 13])  # Detectors C1-5
 
     energies = np.array([8380])
+    energy_out = 7480
 
-    nickel = {'top': np.zeros(10000),
-              'bottom': np.zeros(10000),
-              'original': np.zeros(10000)}
+    grid_size = 10000
+    nickel = {'top': np.zeros(grid_size),
+              'bottom': np.zeros(grid_size),
+              'original': np.zeros(grid_size)}
 
-    nickel['top'][:500] = 1.0
-    nickel['bottom'][-500:] = 1.0
+    nickel['top'][:int(0.05 * grid_size)] = 1.0
+    nickel['bottom'][-int(0.05 * grid_size):] = 1.0
 
-    nickel['uniform'] = np.ones(10000) * 500 / 10000
+    nickel['uniform'] = np.ones(grid_size)
 
-    results = {name: output_intensity(1.0, theta_in, theta_out, cell, energies, 7480, density) for name, density in
-               nickel.items()}
+    results = {name: output_intensity(1.0, theta_in, theta_out, cell, energies, energy_out, density)
+               for name, density in nickel.items()}
 
     in_cell = load_experiment_data(CELL_J[0])
     ex_situ = load_experiment_data(PELLETS_SECOND_BATCH[9])
@@ -94,7 +102,7 @@ def run_ls_04_ccm_comparison():
 
     fig, ax = plt.subplots()
     for name, result in results.items():
-        ax.plot(range(1, 6), result[0, :] / result[0, 0], label=name)
+        ax.plot(CELL_J[0].detectors, result[0, :] / result[0, 0], label=name)
 
     plt.legend()
     plt.show()
