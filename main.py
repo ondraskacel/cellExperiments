@@ -22,6 +22,7 @@ def plot_experiments(experiments, coefficients, geometric_correction=None):
     coef_y_limit = 0.0
     ratio_y_limits = [np.inf, 0]
 
+    backup_spectrum = {'NiSO4': np.ones(5), 'PtNi-dealloyed': np.ones(5)}
     for i, experiment in enumerate(experiments):
 
         name = experiment.output_name or experiment.name
@@ -36,6 +37,8 @@ def plot_experiments(experiments, coefficients, geometric_correction=None):
                 coefs_run[reference] *= correction
 
             ax[0][i].scatter(x_axis, coefs_run[reference], label=reference, color=colors[j])
+            if i == 0:
+                backup_spectrum[reference] = coefs_run[reference] / coefs_run[reference][0]
 
             coef_y_limit = max(coef_y_limit, np.max(coefs_run[reference]))
 
@@ -48,7 +51,7 @@ def plot_experiments(experiments, coefficients, geometric_correction=None):
         ratio_y_limits[1] = max(ratio_y_limits[1], np.max(ratio))
 
     for i in range(len(experiments)):
-        ax[0][i].set_ylim([0.0, coef_y_limit])
+        ax[0][i].set_ylim([0.0, 3.0])
         ax[1][i].set_ylim(ratio_y_limits)
 
     plt.show()
@@ -56,8 +59,8 @@ def plot_experiments(experiments, coefficients, geometric_correction=None):
 
 if __name__ == '__main__':
 
-    cells_ = CELL_R
-    fit = fit_experiments(cells_, 3)
+    cells_ = CELL_R[:3] + CELL_R[9:]
+    fit = fit_experiments(cells_, -1)
 
     plot_experiments(cells_, fit)
 

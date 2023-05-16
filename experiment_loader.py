@@ -111,8 +111,8 @@ def _setup_plot(title):
 
 if __name__ == '__main__':
     
-    from experiment_setup import CELL_Q
+    from experiment_setup import CELL_R
     
-    for experiment in CELL_Q:
+    for experiment in CELL_R[25:]:
         analyze_experiment(experiment)
 
