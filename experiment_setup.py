@@ -210,6 +210,11 @@ CELL_R = [
     _cell_2(name=('R', 'i'), scans=list(range(40, 43)), output_name='quick_hold_4-6'),
     _cell_2(name=('R', 'i'), scans=list(range(43, 46)), output_name='quick_hold_7-9'),
     _cell_2(name=('R', 'i'), scans=list(range(46, 49)), output_name='quick_hold_10-12'),
+    _cell_2(name=('R', 'i'), scans=list(range(51, 63)), output_name='hold2'),
+    _cell_2(name=('R', 'i'), scans=list(range(65, 77)), output_name='ocp3'),
+    _cell_2(name=('R', 'i'), scans=list(range(79, 91)), output_name='hold3'),
+    _cell_2(name=('R', 'i'), scans=list(range(93, 105)), output_name='ocp4'),
+    _cell_2(name=('R', 'i'), scans=list(range(107, 119)), output_name='hold4'),
 ]
 
 ALL_CELLS = CELLS_FIRST_BATCH + CELL_I + CELL_J + CELL_K + CELL_L
